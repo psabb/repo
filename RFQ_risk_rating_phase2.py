@@ -17,6 +17,9 @@ from langchain.prompts import PromptTemplate
 import pandas as pd
 from streamlit_chat import message
 import docx2txt
+import base64
+import json
+import streamlit.components.v1 as components
 
 
 import azure.cognitiveservices.speech as speechsdk
@@ -27,7 +30,7 @@ openai.api_base = "https://rfq-abb.openai.azure.com/"
 openai.api_key = "192d27f4fc584d76abd8a5eb978dcedf"
 openai.api_version = "2023-07-01-preview" #"2023-03-15-preview"
 epoch =1
-i_loop = 0
+
 #GPT Model used in Azure
 #Model: gpt-4-32k, engine="rfq", 
 
@@ -56,6 +59,87 @@ def recognize_from_microphone():
             print("Did you set the speech resource key and region values?")
 # %%
 
+def download_button(object_to_download, download_filename):
+    """
+    Generates a link to download the given object_to_download.
+    Params:
+    ------
+    object_to_download:  The object to be downloaded.
+    download_filename (str): filename and extension of file. e.g. mydata.csv,
+    Returns:
+    -------
+    (str): the anchor tag to download object_to_download
+    """
+    if isinstance(object_to_download, pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    # Try JSON encode for everything else
+    else:
+        object_to_download = json.dumps(object_to_download)
+
+    try:
+        # some strings <-> bytes conversions necessary here
+        b64 = base64.b64encode(object_to_download.encode()).decode()
+
+    except AttributeError as e:
+        b64 = base64.b64encode(object_to_download).decode()
+
+    dl_link = f"""
+    <html>
+    <head>
+    <title>Start Auto Download file</title>
+    <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script>
+    $('<a href="data:text/csv;base64,{b64}" download="{download_filename}">')[0].click()
+    </script>
+    </head>
+    </html>
+    """
+    return dl_link
+
+def download_df():
+    i_loop = 0
+    st.session_state.i_loop = i_loop
+    with st.spinner("Please wait..."):
+        list_ques=['Is total limitation of liability 100% of contract value ?',
+                'Is the Liquidated Damages (LDs) for Performance in the contract terms less than 5% of contract value against agreed PG parameters ?',
+                'Is the Liquidated Damages (LDs) for Delay in the contract terms less than 0.5% per week of delay from contract delivery date or upto 5% of contract value ?',
+                'Is defect liability period till warranty period ?',
+                'Did the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract ?',
+                'Is the Length of warranty 12 months from commissiong/handover or 18 months from delivery whichever ends earlier ?']
+        
+        query_ques=['Give me a list of total limitation of liability. Also, if the total limitation of liability is 100% of contract value then add "yes, positive" in your response, if not then include in your response "no, negative"   ',
+                    'Give me a list of Liquidated Damages (LDs) for Performance in the contract. Also, if the Liquidated Damages (LDs) for Performance in the contract terms is less than 5% of contract value against agreed PG parameters then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Give me a list of Liquidated Damages (LDs) for Delay in the contract. Also, if the Liquidated Damages (LDs) for Delay is less than 0.5% per week of delay from contract delivery date or upto 5% of contract value then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'What is the defect liability period in the contract? Also, if the defect liability period is till warranty period  then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'What is express exclusion of liability in the contract? Also, if the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Give me the warranty details as mentioned in the contract. Also, if the Length of warranty is 12 months from commissioning/handover or 18 months from delivery whichever ends earlier then add "yes, positive" in your response, if not then include in your response "no, negative"  ']
+        
+        # data=pd.DataFrame({"Contract Terms & Condition":list_ques,
+        #                     "Customer_Enquiry":"",
+        #                     "Go or No-Go status as per AI":""
+        #                     })
+        data_xl = pd.DataFrame(columns=["Contract Terms & Condition", "Customer_Enquiry", "Go or No-Go status as per AI" ])
+        
+        for query1 in query_ques: 
+            #response=generate_response({"query":query1})
+            response = generate_response(st.session_state.llm, 
+                                                    st.session_state.retriever, 
+                                                    st.session_state.prompt_template, 
+                                                    query1)
+            
+            if 'yes' in response.strip().lower():
+                ai_outcome = 'OK'
+            elif 'no' in response.strip().lower():
+                ai_outcome = 'Not OK'
+            else:
+                ai_outcome = 'Sorry, couldnt find this information'
+            
+        data_xl.loc[len(data_xl)] = [list_ques[st.session_state.i_loop], str(response), ai_outcome]
+        st.session_state.i_loop +=1
+# df = pd.DataFrame(st.session_state.col_values, columns=[st.session_state.col_name])
+        components.html(download_button(data_xl, 'Risk_Analysis.csv'),height=0,)
+
 def generate_response(llm, retriever_data, prompt_template, query_text):    
     
     qa_interface2 = RetrievalQA.from_chain_type(llm=llm,
@@ -63,6 +147,8 @@ def generate_response(llm, retriever_data, prompt_template, query_text):
                                                 chain_type_kwargs={"prompt":prompt_template},  
                                                 return_source_documents=True)
     return qa_interface2(query_text)['result']
+
+
 
 # %%
 with st.sidebar:
@@ -121,55 +207,11 @@ with st.sidebar:
     # %%.....Below code to generate Excel sheet......##
     if 'epoch' in st.session_state:
         #global i_loop
-        st.session_state.i_loop = i_loop
-        excel_download = st.button("Download Chat & Risk Analysis")
-        if excel_download: #st.sidebar.download_button("Press to Download", file_name=r"RFQ-summary.csv", mime="text/csv", key='download-csv'):
-            with st.spinner("...please wait..."):
-                list_ques=['Is total limitation of liability 100% of contract value ?',
-                           'Is the Liquidated Damages (LDs) for Performance in the contract terms less than 5% of contract value against agreed PG parameters ?',
-                           'Is the Liquidated Damages (LDs) for Delay in the contract terms less than 0.5% per week of delay from contract delivery date or upto 5% of contract value ?',
-                           'Is defect liability period till warranty period ?',
-                           'Did the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract ?',
-                           'Is the Length of warranty 12 months from commissiong/handover or 18 months from delivery whichever ends earlier ?']
-                
-                query_ques=['Give me a list of total limitation of liability. Also, if the total limitation of liability is 100% of contract value then add "yes, positive" in your response, if not then include in your response "no, negative"   ',
-                            'Give me a list of Liquidated Damages (LDs) for Performance in the contract. Also, if the Liquidated Damages (LDs) for Performance in the contract terms is less than 5% of contract value against agreed PG parameters then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'Give me a list of Liquidated Damages (LDs) for Delay in the contract. Also, if the Liquidated Damages (LDs) for Delay is less than 0.5% per week of delay from contract delivery date or upto 5% of contract value then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'What is the defect liability period in the contract? Also, if the defect liability period is till warranty period  then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'What is express exclusion of liability in the contract? Also, if the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'Give me the warranty details as mentioned in the contract. Also, if the Length of warranty is 12 months from commissioning/handover or 18 months from delivery whichever ends earlier then add "yes, positive" in your response, if not then include in your response "no, negative"  ']
-                
-                # data=pd.DataFrame({"Contract Terms & Condition":list_ques,
-                #                     "Customer_Enquiry":"",
-                #                     "Go or No-Go status as per AI":""
-                #                     })
-                data_xl = pd.DataFrame(columns=["Contract Terms & Condition", "Customer_Enquiry", "Go or No-Go status as per AI" ])
-                
-                for query1 in query_ques: 
-                    #response=generate_response({"query":query1})
-                    response = generate_response(st.session_state.llm, 
-                                                            st.session_state.retriever, 
-                                                            st.session_state.prompt_template, 
-                                                            query1)
-                    
-                    if 'yes' in response.strip().lower():
-                        ai_outcome = 'OK'
-                    elif 'no' in response.strip().lower():
-                        ai_outcome = 'Not OK'
-                    else:
-                        ai_outcome = 'Sorry, couldnt find this information'
-                    
-                    data_xl.loc[len(data_xl)] = [list_ques[st.session_state.i_loop], str(response), ai_outcome]
-                    st.session_state.i_loop +=1
-                try: 
-                    data_xl.to_excel(r"RFQ-summary-rating.xlsx", index=False, engine='openpyxl').encode('utf-8')
-                except AttributeError:
-                    pass
-                st.success("...Download successfull...")
+        # st.session_state.i_loop = i_loop
+        # excel_download = st.button("Download Chat & Risk Analysis")
+        st.button("Download Excel", on_click=download_df)
+        
 
-
-# %%.............Main function to accept pdf, create chunks, vectors, embeddings, 
-#............define model, and give answers to questions
 def main():
     import time
     start_time = time.time()
@@ -204,7 +246,7 @@ def main():
     #####........Block to run if PDF is uploaded......
     if uploaded_files:
         if st.session_state.epoch == 1:#epoch ==1:
-            with st.spinner("...Processing your request.....please wait"):
+            with st.spinner("Processing your request.....Please Wait"):
                 ####...........Creating chunks, vectors and Embeddings
                 # Run this loop only once to avoid wastage of time
                 embeddings = OpenAIEmbeddings(chunk_size = 1, 
@@ -332,11 +374,18 @@ def main():
         
         # Inject the styling code for both elements
         st.markdown(style, unsafe_allow_html=True)
+        if "my_text" not in st.session_state:
+                st.session_state.my_text = ""
+
+        def submit():
+            st.session_state.my_text = st.session_state.widget
+            st.session_state.widget = ""
+        
         
         # Add your text input and button
         with text_col:
-            text_input = st.text_input(
-                "Any further query?", placeholder="search here...", key="text_input")
+           st.text_input("Any further query?",key="widget", on_change=submit, placeholder ="Search here...")
+           text_input = st.session_state.my_text
         
         with button_col:
             voice_search_button = st.button("Voice Search", key="stButtonVoice")
