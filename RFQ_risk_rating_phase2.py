@@ -20,7 +20,9 @@ import docx2txt
 import base64
 import json
 import streamlit.components.v1 as components
-
+import googletrans as GT
+from langdetect import detect
+import textract
 
 import azure.cognitiveservices.speech as speechsdk
 speech_key, service_region = '9009b3a6617c4e169a38b3338057063f', 'centralus'
@@ -30,7 +32,7 @@ openai.api_base = "https://rfq-abb.openai.azure.com/"
 openai.api_key = "192d27f4fc584d76abd8a5eb978dcedf"
 openai.api_version = "2023-07-01-preview" #"2023-03-15-preview"
 epoch =1
-
+translator = GT.Translator()
 #GPT Model used in Azure
 #Model: gpt-4-32k, engine="rfq", 
 
@@ -101,19 +103,41 @@ def download_df():
     i_loop = 0
     st.session_state.i_loop = i_loop
     with st.spinner("Please wait..."):
-        list_ques=['Is total limitation of liability 100% of contract value ?',
-                'Is the Liquidated Damages (LDs) for Performance in the contract terms less than 5% of contract value against agreed PG parameters ?',
-                'Is the Liquidated Damages (LDs) for Delay in the contract terms less than 0.5% per week of delay from contract delivery date or upto 5% of contract value ?',
-                'Is defect liability period till warranty period ?',
-                'Did the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract ?',
-                'Is the Length of warranty 12 months from commissiong/handover or 18 months from delivery whichever ends earlier ?']
+        list_ques=['Is total limitation of liability "100%" of contract value ?',
+                    'Is total limitation of liability with carve outs / exceptions?', 
+                    'Is the Liquidated Damages (LDs) for Performance in the contract terms less than "5%" of contract value against agreed PG parameters ?',
+                    'Is the Liquidated Damages (LDs) for Delay in the contract terms less than "0.5%" per week of delay from contract delivery date or upto "5%" of contract value ?', 
+                    'Did the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract ?', 
+                    'Is Force Majeure clause mentioned in the contract and acceptable?',
+                    'Is the Length of warranty 12 months from commissiong/handover or 18 months from delivery whichever ends earlier ?', 
+                    'Has the Customer the right to suspend for ABBs breach? Is there a clause entitling the customer to terminate for convenience?',
+                    'Has ABB the right to suspend for customers breach?',
+                    'Is there a clause entitling the customer to terminate for convenience?',
+                    'Is there Warranty start latest clause in the document? Is Repair/replacement customers exclusive remedy?',
+                    'Does the replaced/repaired part carry an evergreen warranty (unlimited in time)?',
+                    'Is ABB entitled to cost compensation for delays caused by customer?',
+                    'Is ABB entitled to time extension for delays caused by customer?',
+                    'Any Advance payment and retention?',
+                    'What are the payment terms and Price Format?'
+                    ]
         
-        query_ques=['Give me a list of total limitation of liability. Also, if the total limitation of liability or aggregrate of liability is not exceeding contract value (or purchase order price) then add "yes, positive" in your response, if not then include in your response "no, negative"   ',
-                            'Give me a list of Liquidated Damages (LDs) for Performance in the contract. Also, if the Liquidated Damages (LDs) for Performance in the contract terms is less than (or shall not exceed) 5% of contract value (or purchase order value) against agreed PG parameters then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'Give me a list of Liquidated Damages (LDs) for Delay in the contract. Also, if the Liquidated Damages (LDs) for Delay is less than 0.5% per week of delay from contract delivery date or if the Liquidated Damages (LDs) for Delay is less than (or shall not exceed) 5% of contract value then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'What is the defect liability period in the contract? Also, if the defect liability period is till warranty period  then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'What is express exclusion of liability in the contract? Also, if the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
-                            'Give me the warranty details as mentioned in the contract. Also, if the Length of warranty is 12 months from commissioning/handover or 18 months from delivery whichever ends earlier then add "yes, positive" in your response, if not then include in your response "no, negative"  ']
+        query_ques=['Give me a list of total limitation of liability. Also, if the total limitation of liability or aggregrate of liability is not exceeding contract value (or purchase order price, "100%" or MUSD 10) then add "yes, positive" in your response, if not then include in your response "no, negative"   ',
+                    'Is total limitation of liability with carveouts/exceptions or with complaints?. Also, if the total limitation of liability is with carve outs then add "yes, positive" in your response, if not then include in your response "no, negative"  ', 
+                    'Give me a list of Liquidated Damages (LDs) for Performance in the contract. Also, if the Liquidated Damages (LDs) for Performance in the contract terms is less than (or shall not exceed) "5%" of contract value (or purchase order value) against agreed PG parameters then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Give me a list of Liquidated Damages (LDs) for Delay in the contract. Also, if the Liquidated Damages (LDs) for Delay is less than 0.5% per week of delay from contract delivery date or if the Liquidated Damages (LDs) for Delay is less than (or shall not exceed) "5%" of contract value then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'What is express exclusion of liability in the contract? Also, if the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Is Force Majeure clause mentioned in the contract and acceptable? Also, if Force Majeure is not acceptable in the contract then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Give me the warranty details as mentioned in the contract. Also, if the Length of warranty is 12 months from commissioning/handover or 18 months from delivery whichever ends earlier then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Give me the list of customer rights for suspension and termination (along with mentioned clauses). Also, if the termination clause is satisfactory as to profit coverage to the company then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Has ABB has the right to suspend for customers breach? Also, if ABBs termination right for customers breach (e.g. non payment) is included in the document then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Is there a clause entitling the customer to terminate for convenience? Also, if the clause entitling the customer to terminate for convenience is satisfactory as to profit coverage to ABB then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Is there Warranty start latest clause in the document? Also, if Repair/replacement is customers exclusive remedy then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Does the replaced/repaired part carry an evergreen warranty (unlimited in time)? If yes then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'Is ABB entitled to cost compensation for delays caused by customer? If yes then add "yes, positive" in your response, if not then include in your response "no, negative"   ',
+                    'Is ABB entitled to time extension for delays caused by customer? If yes then add "yes, positive" in your response, if not then include in your response "no, negative"   ',
+                    'Give me the advance payment and retention terms as mentioned in the contract. Also, if the advance payment is "10%" or more than "10%" of the full contract value then add "yes, positive" in your response, if not then include in your response "no, negative"  ',
+                    'What are the payment terms and Price Format (Price/Full Cost Model & Cash Flow Payment Terms)? Also, if the price format is lumpsum/fixed price or unit rate or both then add "yes, positive" in your response, if not then include in your response "no, negative"  '
+                    ]
         
         # data=pd.DataFrame({"Contract Terms & Condition":list_ques,
         #                     "Customer_Enquiry":"",
@@ -121,23 +145,60 @@ def download_df():
         #                     })
         data_xl = pd.DataFrame(columns=["Contract Terms & Condition", "Customer_Enquiry", "Go or No-Go status as per AI" ])
         
+        new_template = """You are an expert in reading RFQ's and Tender/contract Document that helps Finance Team to find Relevant information. 
+        You are given a Tender document and a question.
+        You need to find the answer to the question in the Tender document.
+        
+        Inlude in your answer the page numbers from where you fetched the information. 
+        If the answer is not in the document just say "Information Not Available".
+        {context}
+        Question: {question}
+        Helpful Answer:
+        """
+        new_prompt_template = PromptTemplate.from_template(new_template)
+        
+        risk_total_counter = 0
+        risk_counter=0
         for query1 in query_ques: 
             #response=generate_response({"query":query1})
             response = generate_response(st.session_state.llm, 
                                                     st.session_state.retriever, 
-                                                    st.session_state.prompt_template, 
+                                                    new_prompt_template, 
                                                     query1)
             
-            if 'yes' in response.strip().lower():
+            if 'yes, positive' in response.strip().lower():
                 ai_outcome = 'OK'
-            elif 'no' in response.strip().lower():
+                risk_counter+=1
+                risk_total_counter+=1
+            elif 'no, negative' in response.strip().lower():
                 ai_outcome = 'Not OK'
+                risk_total_counter+=1
             else:
                 ai_outcome = 'Sorry, couldnt find this information'
-            
+
+            data_xl.loc[len(data_xl)] = [list_ques[st.session_state.i_loop], str(response), ai_outcome]
+            st.session_state.i_loop +=1
+
+
+        if risk_total_counter != 0: 
+            risk_percent = (risk_counter / risk_total_counter)*100
+            if risk_percent >= 80:
+                st.markdown("<span style='color:green; font-size:24px'><i><b>This contract meets ABB expectation (score >80%)</b></i></span>  🔥", unsafe_allow_html=True)
+                #st.warning("<span style='color:green; font-size:24px'><i><b>This contract meets ABB expectation</b></i></span>", icon="🔥")
+            elif risk_percent>=60 and risk_percent<80:
+                st.markdown("<span style='color:orange; font-size:24px'><i><b>This contract partially meets ABB expectation (score >60% but <80%)</b></i></span>  ⚠️ ", unsafe_allow_html=True)
+                #st.warning("<span style='color:orange; font-size:24px'><i><b>This contract partially meets ABB expectation</b></i></span>", icon="⚠️")
+            else:
+                st.markdown("<span style='color:red; font-size:24px'><i><b>This contract didnot meet ABB expectation (score <60%)</b></i></span>  🚨", unsafe_allow_html=True)
+                #st.warning("<span style='color:red; font-size:24px'><i><b>This contract didnot meet ABB expectation</b></i></span>", icon="🚨")
+            #st.write("Score according to AI, out of 6: ",counter)
+        else:
+            st.markdown("<span style='color:red; font-size:24px'><i><b>Couldn't find scorable information</b></i></span>  🚨", unsafe_allow_html=True)
+            #st.text(" Couldn't find any information!")
+          
         data_xl.loc[len(data_xl)] = [list_ques[st.session_state.i_loop], str(response), ai_outcome]
         st.session_state.i_loop +=1
-# df = pd.DataFrame(st.session_state.col_values, columns=[st.session_state.col_name])
+        # df = pd.DataFrame(st.session_state.col_values, columns=[st.session_state.col_name])
         components.html(download_button(data_xl, 'Risk_Analysis.csv'),height=0,)
 
 def generate_response(llm, retriever_data, prompt_template, query_text):    
@@ -169,39 +230,39 @@ with st.sidebar:
     st.write(" ")
     
     # %% ... Below code block to create 'AI Risk Analysis" button
-    analytics_request = st.button("View Risk Analysis by AI")
+    # analytics_request = st.button("View Risk Analysis by AI")
     
-    if analytics_request:
-        analytics_ques_list = ['if total limitation of liability is 100% of contract value or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
-                               'if the Liquidated Damages (LDs) for Performance in the contract terms is less than 5% of contract value against agreed PG parameters or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
-                               'if the Liquidated Damages (LDs) for Delay in the contract terms is less than 0.5% per week of delay from contract delivery date or upto 5% of contract value or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
-                               'if defect liability period is till warranty period or if this information is not available in the document,, then give a single word string answer as "yes" else give answer as "no" ',
-                               'if the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
-                               'if the Length of warranty is 12 months from commissiong/handover or 18 months from delivery whichever ends earlier or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" '
-                               #'if the Length of warranty is 12 months from commissiong/handover or 18 months from delivery whichever ends earlier, then give a single word answer as "yes" else give answer as "no" ',
-                               ]
-        counter = 0
-        with st.spinner("...Processing your request.....please wait"):
-            for anlyt_query in analytics_ques_list:
-                #print(anlyt_query)
-                #print('\n')
-                generated_response = generate_response(st.session_state.llm, 
-                                                       st.session_state.retriever, 
-                                                       None, anlyt_query)
-                if generated_response.strip().lower()=='yes':
-                    counter+=1
-                #st.write(generated_response)
-            #st.write("counter =", counter)
-            if counter >=4:
-                st.markdown("<span style='color:green; font-size:24px'><i><b>This contract meets ABB expectation</b></i></span>  🔥", unsafe_allow_html=True)
-                #st.warning("<span style='color:green; font-size:24px'><i><b>This contract meets ABB expectation</b></i></span>", icon="🔥")
-            elif counter>=2 and counter<4:
-                st.markdown("<span style='color:orange; font-size:24px'><i><b>This contract partially meets ABB expectation</b></i></span>  ⚠️ ", unsafe_allow_html=True)
-                #st.warning("<span style='color:orange; font-size:24px'><i><b>This contract partially meets ABB expectation</b></i></span>", icon="⚠️")
-            else:
-                st.markdown("<span style='color:red; font-size:24px'><i><b>This contract didnot meet ABB expectation</b></i></span>  🚨", unsafe_allow_html=True)
-                #st.warning("<span style='color:red; font-size:24px'><i><b>This contract didnot meet ABB expectation</b></i></span>", icon="🚨")
-            st.write("Score according to AI, out of 6: ",counter)
+    # if analytics_request:
+    #     analytics_ques_list = ['if total limitation of liability is 100% of contract value or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
+    #                            'if the Liquidated Damages (LDs) for Performance in the contract terms is less than 5% of contract value against agreed PG parameters or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
+    #                            'if the Liquidated Damages (LDs) for Delay in the contract terms is less than 0.5% per week of delay from contract delivery date or upto 5% of contract value or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
+    #                            'if defect liability period is till warranty period or if this information is not available in the document,, then give a single word string answer as "yes" else give answer as "no" ',
+    #                            'if the contract contain an express exclusion of liability for consequential losses and if that is to be borne or accepted by the one who accepts the contract or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" ',
+    #                            'if the Length of warranty is 12 months from commissiong/handover or 18 months from delivery whichever ends earlier or if this information is not available in the document, then give a single word string answer as "yes" else give answer as "no" '
+    #                            #'if the Length of warranty is 12 months from commissiong/handover or 18 months from delivery whichever ends earlier, then give a single word answer as "yes" else give answer as "no" ',
+    #                            ]
+    #     counter = 0
+    #     with st.spinner("...Processing your request.....please wait"):
+    #         for anlyt_query in analytics_ques_list:
+    #             #print(anlyt_query)
+    #             #print('\n')
+    #             generated_response = generate_response(st.session_state.llm, 
+    #                                                    st.session_state.retriever, 
+    #                                                    None, anlyt_query)
+    #             if generated_response.strip().lower()=='yes':
+    #                 counter+=1
+    #             #st.write(generated_response)
+    #         #st.write("counter =", counter)
+    #         if counter >=4:
+    #             st.markdown("<span style='color:green; font-size:24px'><i><b>This contract meets ABB expectation</b></i></span>  🔥", unsafe_allow_html=True)
+    #             #st.warning("<span style='color:green; font-size:24px'><i><b>This contract meets ABB expectation</b></i></span>", icon="🔥")
+    #         elif counter>=2 and counter<4:
+    #             st.markdown("<span style='color:orange; font-size:24px'><i><b>This contract partially meets ABB expectation</b></i></span>  ⚠️ ", unsafe_allow_html=True)
+    #             #st.warning("<span style='color:orange; font-size:24px'><i><b>This contract partially meets ABB expectation</b></i></span>", icon="⚠️")
+    #         else:
+    #             st.markdown("<span style='color:red; font-size:24px'><i><b>This contract didnot meet ABB expectation</b></i></span>  🚨", unsafe_allow_html=True)
+    #             #st.warning("<span style='color:red; font-size:24px'><i><b>This contract didnot meet ABB expectation</b></i></span>", icon="🚨")
+    #         st.write("Score according to AI, out of 6: ",counter)
            
         
     # %%.....Below code to generate Excel sheet......##
@@ -209,7 +270,7 @@ with st.sidebar:
         #global i_loop
         # st.session_state.i_loop = i_loop
         # excel_download = st.button("Download Chat & Risk Analysis")
-        st.button("Download Excel", on_click=download_df)
+        st.button("View & Download Risk Analysis", on_click=download_df)
         
 
 def main():
@@ -231,7 +292,7 @@ def main():
         st.session_state.epoch = 1
         st.session_state.vectorstore = None
         st.session_state.retriever = None
-        llm = AzureChatOpenAI(deployment_name="rfq", 
+        llm = AzureChatOpenAI(deployment_name="rfq8k", 
                               openai_api_key = openai.api_key, 
                               openai_api_version = openai.api_version, 
                               openai_api_base = openai.api_base) #openai_api_base=openai.api_base, engine="rfq"
@@ -277,6 +338,15 @@ def main():
                     elif file_type in [".doc", ".docx"]:
                         text += docx2txt.process(file)
                 
+                try:
+                    result = detect(text)
+                    if result!='en':
+                        raw_trans = translator.translate(text, dest="en") 
+                        translated_text = raw_trans.text
+                    else:
+                        translated_text =  text
+                except:
+                    st.text('something wrong')
                 
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
                 splits = text_splitter.split_text(text)
@@ -319,10 +389,14 @@ def main():
                 st.session_state.epoch += 1
                 ####.......End of creating chunks, vectors and embeddings
         
-        list_ques=['','Summary of the Liability',
-                    'What are penalty amount or liability for Delayed Liquidated Damages.',
-                    "Defect liability period for Delayed LD's",
-                    'Who has the dispute resolution authority in this Contract?' ]
+        list_ques=['','Give the Summary of Liabilities and consequential losses',
+                   'What are the payment terms/conditions and Price Formats?',
+                   'What are the suspension and termination rights and clauses?',
+                   'What are the Liquidated Damages (LDs) for Performance and Delays?',
+                   'What are penalty amounts or liability for Delayed Liquidated Damages?',
+                   'List the Guarantees/waranty terms and clauses',
+                   'What are the Governing laws, claims, and dispute mechanisms?',
+                   'Who has the dispute resolution authority in this Contract?'  ]
         
         col1, col2 = st.columns([4.5,1])
         with col1:
