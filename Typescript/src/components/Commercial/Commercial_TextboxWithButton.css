@@ -1,0 +1,11 @@
+* {
+  font-family: ABBvoice;
+}
+
+.iconButton:hover {
+  color: red !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border-color: rgb(151, 157, 161) !important;
+}

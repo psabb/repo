@@ -1,0 +1,17 @@
+input[type="file"] {
+  color: rgba(0, 0, 0, 0);
+}
+
+.progress-bar {
+  background-color: #ff0011 !important;
+}
+
+.btn-danger {
+  background-color: #ff0011 !important;
+  border-radius: 50px;
+  width: 60%;
+}
+
+.btn-danger:hover {
+  background-color: #ff4754 !important;
+}
