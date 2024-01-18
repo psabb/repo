@@ -16,6 +16,14 @@ import re
 from flask import jsonify
 from tp.templates import main_system_template,cabinet_template,arch_template,scope_template,bom_template,io_template,new_template,template,com_template
 from tp.commercial_questions import analytics_ques_list, download_ques_list
+import googletrans as GT
+from langdetect import detect
+import textract
+import tempfile
+import glob
+from azure.core.credentials import AzureKeyCredential
+from azure.ai.formrecognizer import DocumentAnalysisClient
+
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +32,13 @@ openai.api_type = "azure"
 openai.api_base = "https://rfq-abb.openai.azure.com/"
 openai.api_key = "192d27f4fc584d76abd8a5eb978dcedf"
 openai.api_version = "2023-07-01-preview"
+
+docai_endpoint = "https://docai-trained-bhanu.cognitiveservices.azure.com/"
+docai_key = "6943fe9ad42e478a8841ae77c1b8d12e"
+document_analysis_client = DocumentAnalysisClient(
+                    endpoint=docai_endpoint, credential=AzureKeyCredential(docai_key)
+                )
+
 epoch =1
 i_loop = 0
 
@@ -68,15 +83,21 @@ def process_file(file_path):
         
         # Create an empty string to store the text from the file
         text = ""
+        print("Hello")
 
-        # Loop through the files, extract the text, and append it to the string
-        file_type = os.path.splitext(file_path)[1]
-        if file_type == ".pdf" or file_type == ".PDF":
-            pdf_file = fitz.open(file_path, filetype="pdf")
-            for page in pdf_file:
-                text += page.get_text()
-        elif file_type in [".doc", ".docx"]:
-            text += docx2txt.process(file_path)
+        with open(file_path, "rb") as fd:
+
+            pdf_data = fd.read()
+            print("Hello2")
+
+            poller = document_analysis_client.begin_analyze_document(
+                "prebuilt-layout", pdf_data)
+            print("Hello4")       
+            result = poller.result()
+            res = str(result.content) 
+            text += res
+            print(result.content)
+            print("Hello5")
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
