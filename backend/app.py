@@ -60,7 +60,22 @@ vector_store = FAISS.from_texts(splits, embedding=embeddings)
 retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
 # Set up prompt template
-template = """Your prompt template here"""
+template = """You are an expert in reading RFQ's and Tender/contract Document that helps Finance Team to find Relevant information in a PO. 
+                You are given a Tender document and a question.
+                You need to find the answer to the question in the Tender document.
+                
+                Give me the commercial values if present in the document.
+                Highlight the keywords and numbers or values with '**'. 
+                For Example:
+                **Daily LD Amount**
+                **Daily Drawing LD Amount**
+                    
+                Give the answer in sentences or bullet points instead of a paragraph.
+                If the answer is not in the document just say "Information Not Available".
+                {context}
+                Question: {question}
+                Helpful Answer:"""
+
 prompt_template = PromptTemplate.from_template(template)
 
 # Save variables to app context
@@ -94,8 +109,7 @@ def process_file(file_path):
                 "prebuilt-layout", pdf_data)
             print("Hello4")       
             result = poller.result()
-            res = str(result.content) 
-            text += res
+            text += result.content
             print(result.content)
             print("Hello5")
 
@@ -237,7 +251,8 @@ def process_input():
 
         # Generate response using OpenAI and other data
         generated_response = generate_response(llm, retriever, prompt_template, user_input)
-
+        
+        print(generated_response)
         return jsonify({'success': True, 'generated_response': generated_response})
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error processing input: {str(e)}'})  
