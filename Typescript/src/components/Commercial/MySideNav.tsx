@@ -8,6 +8,8 @@ import SideNav, {
 import "@trendmicro/react-sidenav/dist/react-sidenav.css";
 import FileUploadService from "../../services/FileUploadService";
 import * as XLSX from "xlsx";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Result {
   question: string;
@@ -24,7 +26,6 @@ interface RiskResults {
 function MySideNav() {
   const [isRiskAnalysisInProgress, setRiskAnalysisInProgress] = useState(false);
   const [riskResults, setRiskResults] = useState<RiskResults | null>(null);
-  const [downloadMessage, setDownloadMessage] = useState<string | null>(null);
 
   const convertRiskResultsToExcel = (riskResults: RiskResults) => {
     try {
@@ -58,6 +59,9 @@ function MySideNav() {
         return;
       }
       setRiskAnalysisInProgress(true);
+
+      // Show a warning toast while the download is in progress
+      toast.warning("Download is in progress...", { autoClose: false });
 
       // Perform risk analysis and get results
       await FileUploadService.processFile();
@@ -102,6 +106,10 @@ function MySideNav() {
         console.error("Error triggering risk analysis:", response.message);
         // Handle error: Display a notification or alert to the user
       }
+      // Close the warning toast once the download is complete
+      toast.dismiss();
+      // Show a success toast after a successful download
+      toast.success("Download successful!");
     } catch (error) {
       console.error("Error:", (error as Error).message);
       // Handle error: Display a notification or alert to the user
@@ -119,6 +127,8 @@ function MySideNav() {
       }
 
       setRiskAnalysisInProgress(true);
+
+      toast.warning("Download is in progress...", { autoClose: false });
 
       // Make a request to the Flask backend to generate Excel and get the file as a response
       const response = await FileUploadService.generateExcel();
@@ -147,6 +157,10 @@ function MySideNav() {
       } else {
         console.error("Invalid response received from the server.");
       }
+      // Close the warning toast once the download is complete
+      toast.dismiss();
+      // Show a success toast after a successful download
+      toast.success("Download successful!");
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -158,9 +172,15 @@ function MySideNav() {
   const handleLegalDownload = async () => {
     try {
       console.log("triggered legeal");
+      toast.warning("Download is in progress...", { autoClose: false });
+
       const response = await FileUploadService.legalExcel();
 
       console.log("response received");
+      // Close the warning toast once the download is complete
+      toast.dismiss();
+      // Show a success toast after a successful download
+      toast.success("Download successful!");
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -168,32 +188,42 @@ function MySideNav() {
   };
 
   return (
-    <SideNav onSelect={(selected: string) => {}}>
-      <Toggle />
-      <SideNav.Nav defaultSelected="downloads">
-        <NavItem eventKey="downloads">
-          <NavIcon>
-            <i
-              className="fa-solid fa-download"
-              style={{ fontSize: "1.5em" }}
-            ></i>
-          </NavIcon>
-          <NavText>Download Center</NavText>
-          <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
-            <NavText>Commercial Report</NavText>
+    <>
+      <SideNav onSelect={(selected: string) => {}}>
+        <Toggle />
+        <SideNav.Nav defaultSelected="downloads">
+          <NavItem eventKey="downloads">
+            <NavIcon>
+              <i
+                className="fa-solid fa-download"
+                style={{ fontSize: "1.5em" }}
+              ></i>
+            </NavIcon>
+            <NavText>Download Center</NavText>
+            <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
+              <NavText>Commercial Report</NavText>
+            </NavItem>
+            <NavItem eventKey="Legal" onClick={handleLegalDownload}>
+              <NavText>Legal Report</NavText>
+            </NavItem>
+            <NavItem eventKey="Technical" onClick={handleTechnicalDownload}>
+              <NavText>Technical Report</NavText>
+            </NavItem>
+            <NavItem eventKey="General">
+              <NavText>General Report</NavText>
+            </NavItem>
           </NavItem>
-          <NavItem eventKey="Legal" onClick={handleLegalDownload}>
-            <NavText>Legal Report</NavText>
-          </NavItem>
-          <NavItem eventKey="Technical" onClick={handleTechnicalDownload}>
-            <NavText>Technical Report</NavText>
-          </NavItem>
-          <NavItem eventKey="General">
-            <NavText>General Report</NavText>
-          </NavItem>
-        </NavItem>
-      </SideNav.Nav>
-    </SideNav>
+        </SideNav.Nav>
+      </SideNav>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
+    </>
   );
 }
 
