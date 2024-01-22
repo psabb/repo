@@ -25,6 +25,7 @@ import glob
 from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
+# from azure.ai.documentintelligence import DocumentIntelligenceClient
 
 
 app = Flask(__name__)
@@ -45,7 +46,7 @@ epoch =1
 i_loop = 0
 
 # Initialize necessary variables here (e.g., llm, retriever, prompt_template)
-llm = AzureChatOpenAI(deployment_name="rfq", openai_api_key=openai.api_key, openai_api_version=openai.api_version, openai_api_base=openai.api_base)
+llm = AzureChatOpenAI(deployment_name="rfq8k", openai_api_key=openai.api_key, openai_api_version=openai.api_version, openai_api_base=openai.api_base)
 embeddings = OpenAIEmbeddings(
     chunk_size=1,
     openai_api_key=openai.api_key,
@@ -101,17 +102,26 @@ def process_file(file_path):
         # Create an empty string to store the text from the file
         text = ""
         
+# Check file extension to determine the file type
+        file_extension = os.path.splitext(file_path)[1].lower()
+        if file_extension == '.pdf':
+            with open(file_path, "rb") as fd:
+                pdf_data = fd.read()
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-layout", pdf_data)
+                result = poller.result()
+                text += result.content
+                print(text)
 
-        with open(file_path, "rb") as fd:
+        elif file_extension == '.docx':
+            with open(file_path, "rb") as fd:
+                pdf_data = fd.read()
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-read", pdf_data)
+                result = poller.result()
+                text += result.content
+                print(text)
 
-            pdf_data = fd.read()
-            poller = document_analysis_client.begin_analyze_document(
-                "prebuilt-layout", pdf_data)
-             
-            result = poller.result()
-            text += result.content
-            print(result.content)
-            
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
@@ -147,26 +157,35 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    # Check if files are present in the request
     if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
+        return jsonify({'error': 'No files part'})
 
-    file = request.files['file']
+    files = request.files.getlist('file')
 
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
+    # Ensure at least one file is selected
+    if not files or all(file.filename == '' for file in files):
+        return jsonify({'error': 'No selected files'})
 
     # Ensure the "uploads" directory exists
     uploads_dir = os.path.join(os.getcwd(), 'uploads')
     os.makedirs(uploads_dir, exist_ok=True)
 
-    # Save the file with an absolute path
-    file_path = os.path.join(uploads_dir, file.filename)
-    file.save(file_path)
+    file_paths = []
 
-    # Process the file
-    process_file(file_path)
+    # Save each file with an absolute path
+    for file in files:
+        if file.filename == '':
+            continue
 
-    return jsonify({'success': 'File uploaded successfully', 'file_path': file_path})
+        file_path = os.path.join(uploads_dir, file.filename)
+        file.save(file_path)
+        file_paths.append(file_path)
+
+        # Process each file
+        process_file(file_path)
+
+    return jsonify({'success': 'Files uploaded successfully', 'file_paths': file_paths})
 
 @app.route('/process', methods=['POST'])
 def process():
@@ -273,15 +292,15 @@ class RichExcelWriter(XlsxWriter):
             wks = self.sheets[sheet_name]
         else:
             wks = self.book.add_worksheet(sheet_name)
-            wks.set_column(0, 0, 50)
+            wks.set_column(0, 0, 40)
             wks.set_column(1, 5, 70)
             # Add handler to the worksheet when it's created
             wks.add_write_handler(list, lambda worksheet, row, col, list, style: worksheet._write_rich_string(row, col, *list))
-            
-            
             self.sheets[sheet_name] = wks
         super(RichExcelWriter, self)._write_cells(cells, sheet_name, startrow, startcol, freeze_panes)
 
+
+        
 
 def create_excel_with_formatting_local(df, filename, sheet_name):
     """
@@ -313,7 +332,6 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
         df[col] = df[col].apply(convert_html_tags)
 
     output = df.to_excel(writer, sheet_name=sheet_name, index=False)
-
     writer.close()
     return output
 
