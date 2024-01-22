@@ -7,6 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
 import fitz
 import os
+from datetime import datetime   
 import openai
 import docx2txt
 from flask_cors import CORS
@@ -21,6 +22,7 @@ from langdetect import detect
 import textract
 import tempfile
 import glob
+from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
 
@@ -98,20 +100,18 @@ def process_file(file_path):
         
         # Create an empty string to store the text from the file
         text = ""
-        print("Hello")
+        
 
         with open(file_path, "rb") as fd:
 
             pdf_data = fd.read()
-            print("Hello2")
-
             poller = document_analysis_client.begin_analyze_document(
                 "prebuilt-layout", pdf_data)
-            print("Hello4")       
+             
             result = poller.result()
             text += result.content
             print(result.content)
-            print("Hello5")
+            
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
@@ -258,7 +258,7 @@ def process_input():
         return jsonify({'success': False, 'message': f'Error processing input: {str(e)}'})  
 
 
-class RichExcelWriter:
+class RichExcelWriter(XlsxWriter):
     def __init__(self, *args, **kwargs):
         super(RichExcelWriter, self).__init__(*args, **kwargs)
 
@@ -273,9 +273,12 @@ class RichExcelWriter:
             wks = self.sheets[sheet_name]
         else:
             wks = self.book.add_worksheet(sheet_name)
-            wks.set_column(0, 0, 40)
-            wks.set_column(1, 5, 50)
+            wks.set_column(0, 0, 50)
+            wks.set_column(1, 5, 70)
+            # Add handler to the worksheet when it's created
             wks.add_write_handler(list, lambda worksheet, row, col, list, style: worksheet._write_rich_string(row, col, *list))
+            
+            
             self.sheets[sheet_name] = wks
         super(RichExcelWriter, self)._write_cells(cells, sheet_name, startrow, startcol, freeze_panes)
 
@@ -293,16 +296,10 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
     """
     writer = RichExcelWriter(filename)
     workbook = writer.book
-    bold = workbook.add_format({'bold': True})
+    bold = workbook.add_format({'bold': True, 'text_wrap': True})
 
-    # Function to convert HTML bold tags to Excel bold formatting
+     # Function to convert HTML bold tags to Excel bold formatting
     def convert_html_tags(text):
-        """
-        The convert_html_tags function takes a string as input and returns the same string with HTML tags converted to Excel formatting.
-        
-        :param text: Pass in the text that will be formatted
-        :return: A list of formatted strings
-        """
         if isinstance(text, float):
             return ' '
         if '<b>' not in text:
@@ -316,8 +313,10 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
         df[col] = df[col].apply(convert_html_tags)
 
     output = df.to_excel(writer, sheet_name=sheet_name, index=False)
+
     writer.close()
     return output
+
 
 @app.route('/generate_excel', methods=['GET'])
 def generate_excel():
@@ -376,13 +375,14 @@ def generate_excel():
             df.loc[df['Systems'] == system, ['IO']] = io_response
 
         # Create the full path for the Excel file
-            excel_filename = os.path.join(os.path.expanduser("~"), "Downloads", f"Technical_Report.xlsx")
-            df.to_excel(excel_filename, index=False)
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        excel_filename = os.path.join(os.path.expanduser("~"), "Downloads", f"Technical_Report_{timestamp}.xlsx")
+        df.to_excel(excel_filename, index=False)
 
-            # Apply formatting to the generated Excel file
-            create_excel_with_formatting_local(df, excel_filename, sheet_name='Sheet1')
+        # Apply formatting to the generated Excel file
+        create_excel_with_formatting_local(df, excel_filename, sheet_name='Sheet1')
 
-            return jsonify({'success': True, 'message': f'file generated successfully'})
+        return jsonify({'success': True, 'message': f'file generated successfully'})
 
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error generating Excel file: {str(e)}'})
@@ -415,8 +415,11 @@ def download_legal():
             data_xl.loc[len(data_xl)] = [topic[i], query1, str(response)]
             i += 1
         
-        excel_filename = "C:\\Users\\INSAN27\\Downloads\\legal_excel_file.xlsx"
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        excel_filename = os.path.join(os.path.expanduser("~"), "Downloads", f"Legal_Report_{timestamp}.xlsx")
         data_xl.to_excel(excel_filename, index=False)
+
+        create_excel_with_formatting_local(data_xl, excel_filename, sheet_name='Sheet1')
 
         return jsonify({'success': True, 'message': f'File "{excel_filename}" generated successfully'})
 

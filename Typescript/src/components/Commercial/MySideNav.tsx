@@ -35,6 +35,22 @@ function MySideNav() {
       // Convert risk results to Excel data
       const sheet = XLSX.utils.json_to_sheet(riskResults.results);
 
+      // Iterate over all cells and set text wrapping
+      for (const cell in sheet) {
+        if (cell !== "!ref" && cell !== "!cols" && cell !== "!rows") {
+          sheet[cell].s = { wrapText: true };
+        }
+      }
+
+      // Set minimum column size to 10 pixels
+      for (const col in sheet) {
+        if (col !== "!ref" && col !== "!rows") {
+          const columnIndex = XLSX.utils.decode_cell(col).c;
+          sheet["!cols"] = sheet["!cols"] || [];
+          sheet["!cols"][columnIndex] = { width: 10, wpx: 10 };
+        }
+      }
+
       // Add the sheet to the workbook
       XLSX.utils.book_append_sheet(workbook, sheet, "Risk Analysis Results");
 
@@ -127,36 +143,12 @@ function MySideNav() {
       }
 
       setRiskAnalysisInProgress(true);
-
       toast.warning("Download is in progress...", { autoClose: false });
 
       // Make a request to the Flask backend to generate Excel and get the file as a response
       const response = await FileUploadService.generateExcel();
 
       console.log("Technical Report is downloading");
-
-      // Ensure that the response object and its headers are defined
-      if (
-        response &&
-        response.headers &&
-        response.headers["content-type"] ===
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      ) {
-        // Create a Blob from the response data
-        const blob = new Blob([response.data], {
-          type: response.headers["content-type"],
-        });
-
-        // Create a download link and trigger the download
-        const downloadLink = document.createElement("a");
-        downloadLink.href = window.URL.createObjectURL(blob);
-        downloadLink.download = "generated_excel_file.xlsx";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      } else {
-        console.error("Invalid response received from the server.");
-      }
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
