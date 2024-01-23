@@ -10,6 +10,26 @@ import {
 import "./UserLogin.css";
 
 export class UserLogin extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpen: false,
+    };
+  }
+
+  handleMouseOver = () => {
+    this.setState({
+      isOpen: true,
+    });
+  };
+
+  handleMouseLeave = () => {
+    this.setState({
+      isOpen: false,
+    });
+  };
+
   getInitials = (name) => {
     const names = name.split(" ");
     return names
@@ -28,7 +48,11 @@ export class UserLogin extends Component {
       );
 
       return (
-        <UncontrolledDropdown>
+        <UncontrolledDropdown
+          onMouseOver={this.handleMouseOver}
+          onMouseLeave={this.handleMouseLeave}
+          isOpen={this.state.isOpen}
+        >
           <DropdownToggle nav>{avatarContent}</DropdownToggle>
           <DropdownMenu left>
             <h5 className="dropdown-item-text mb-0">{user.name}</h5>
