@@ -13,18 +13,9 @@ const NavbarContainer = () => {
       <div className="navbar-container">
         <MySideNav />
 
-        <img
-          src={localGif}
-          alt="Local GIF"
-          style={{
-            width: "5%",
-            height: "40%",
-            marginLeft: "6%",
-            marginTop: "1.4%",
-          }}
-        />
-
-        <p className="container-text">Intelli Reader</p>
+        <div className="logo-container">
+          <img src={localGif} alt="Local GIF" className="logo-image" />
+        </div>
       </div>
       <GlassMorphContainer
         children={undefined}

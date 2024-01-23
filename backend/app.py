@@ -25,8 +25,11 @@ import glob
 from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
+<<<<<<< HEAD
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
+=======
+>>>>>>> a11977024a2556a3ad38d51a7cc8d86080940edd
 # from azure.ai.documentintelligence import DocumentIntelligenceClient
 
 
@@ -48,7 +51,7 @@ epoch =1
 i_loop = 0
 
 # Initialize necessary variables here (e.g., llm, retriever, prompt_template)
-llm = AzureChatOpenAI(deployment_name="rfq", openai_api_key=openai.api_key, openai_api_version=openai.api_version, openai_api_base=openai.api_base)
+llm = AzureChatOpenAI(deployment_name="rfq8k", openai_api_key=openai.api_key, openai_api_version=openai.api_version, openai_api_base=openai.api_base)
 embeddings = OpenAIEmbeddings(
     chunk_size=1,
     openai_api_key=openai.api_key,
@@ -65,6 +68,7 @@ embeddings = OpenAIEmbeddings(
 # retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
 # Set up prompt template
+<<<<<<< HEAD
 template = """You help everyone by answering questions, and improve your answers from previous answers in History.
                 Don't try to make up an answer, if you don't know, just say that you don't know.
                 Answer in the same language the question was asked.
@@ -76,6 +80,11 @@ template = """You help everyone by answering questions, and improve your answers
 
                 Question: {question}
                 Answer:
+=======
+template = """You are an expert in reading RFQ's and Tender/contract Document that helps Finance Team to find Relevant information in a PO. 
+                You are given a Tender document and a question.
+                You need to find the answer to the question in the Tender document.
+>>>>>>> a11977024a2556a3ad38d51a7cc8d86080940edd
                 
                 Give me the commercial values if present in the document.
                 Highlight the keywords and numbers or values with '**'. 
@@ -84,9 +93,18 @@ template = """You help everyone by answering questions, and improve your answers
                 **Daily Drawing LD Amount**
                     
                 Give the answer in sentences or bullet points instead of a paragraph.
+<<<<<<< HEAD
                 If the answer is not in the document just say "Information Not Available."""
 
 prompt_template = PromptTemplate.from_template(template,input_variables=["chat_history","context","question"])
+=======
+                If the answer is not in the document just say "Information Not Available".
+                {context}
+                Question: {question}
+                Helpful Answer:"""
+
+prompt_template = PromptTemplate.from_template(template)
+>>>>>>> a11977024a2556a3ad38d51a7cc8d86080940edd
 
 # Save variables to app context
 app.config['llm'] = llm
@@ -113,6 +131,7 @@ def process_file(file_path):
         
 # Check file extension to determine the file type
         file_extension = os.path.splitext(file_path)[1].lower()
+<<<<<<< HEAD
         print("111")
         if file_extension == '.pdf':
             print("2222")
@@ -175,6 +194,26 @@ def process_file(file_path):
         #         result = poller.result()
         #         text = result.content
         #         print(text)
+=======
+        if file_extension == '.pdf':
+            with open(file_path, "rb") as fd:
+                pdf_data = fd.read()
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-layout", pdf_data)
+                result = poller.result()
+                text += result.content
+                print(text)
+
+        elif file_extension == '.docx':
+            with open(file_path, "rb") as fd:
+                pdf_data = fd.read()
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-read", pdf_data)
+                result = poller.result()
+                text += result.content
+                print(text)
+
+>>>>>>> a11977024a2556a3ad38d51a7cc8d86080940edd
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
@@ -210,26 +249,35 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    # Check if files are present in the request
     if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
+        return jsonify({'error': 'No files part'})
 
-    file = request.files['file']
+    files = request.files.getlist('file')
 
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
+    # Ensure at least one file is selected
+    if not files or all(file.filename == '' for file in files):
+        return jsonify({'error': 'No selected files'})
 
     # Ensure the "uploads" directory exists
     uploads_dir = os.path.join(os.getcwd(), 'uploads')
     os.makedirs(uploads_dir, exist_ok=True)
 
-    # Save the file with an absolute path
-    file_path = os.path.join(uploads_dir, file.filename)
-    file.save(file_path)
+    file_paths = []
 
-    # Process the file
-    process_file(file_path)
+    # Save each file with an absolute path
+    for file in files:
+        if file.filename == '':
+            continue
 
-    return jsonify({'success': 'File uploaded successfully', 'file_path': file_path})
+        file_path = os.path.join(uploads_dir, file.filename)
+        file.save(file_path)
+        file_paths.append(file_path)
+
+        # Process each file
+        process_file(file_path)
+
+    return jsonify({'success': 'Files uploaded successfully', 'file_paths': file_paths})
 
 @app.route('/process', methods=['POST'])
 def process():
@@ -319,7 +367,11 @@ def process_input():
         user_input = request.json['user_input']
 
         # Generate response using OpenAI and other data
+<<<<<<< HEAD
         generated_response = generate_response(llm, retriever, prompt_template, user_input,memory)
+=======
+        generated_response = generate_response(llm, retriever, prompt_template, user_input)
+>>>>>>> a11977024a2556a3ad38d51a7cc8d86080940edd
         
         print(generated_response)
         return jsonify({'success': True, 'generated_response': generated_response})
