@@ -11,7 +11,7 @@
 
 .container-text {
   text-align: center;
-  margin-top: 1.2%;
+  margin-top: 0.8%;
   margin-left: 1%;
 
   font-size: x-large;
@@ -19,19 +19,26 @@
   font-weight: Bold;
 }
 
-.navbar-image {
-  height: fit-content;
-  margin-top: 1%;
-  margin-right: 1%;
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-@media only screen and (max-width: 600px) {
-  .navbar-image {
-    display: none;
+@media only screen and (min-width: 600px) {
+  .logo-image {
+    width: 4%; /* Set width as a percentage */
+    height: 40%; /* Maintain aspect ratio */
+    margin-left: 5rem; /* Adjust the margin as needed */
+    margin-top: 1rem;
   }
+}
 
-  .container-text {
-    font-size: smaller;
-    text-align: center;
+/* Media query for large screens */
+@media only screen and (min-width: 1200px) {
+  .logo-image {
+    width: 60%; /* Set width as a percentage */
+    height: 60%; /* Maintain aspect ratio */
+    margin-left: 5rem; /* Adjust the margin as needed */
   }
 }
