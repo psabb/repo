@@ -27,7 +27,7 @@
 
 @media only screen and (min-width: 600px) {
   .logo-image {
-    width: 4%; /* Set width as a percentage */
+    width: 65%; /* Set width as a percentage */
     height: 40%; /* Maintain aspect ratio */
     margin-left: 5rem; /* Adjust the margin as needed */
     margin-top: 1rem;

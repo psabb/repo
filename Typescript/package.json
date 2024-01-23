@@ -4,6 +4,8 @@
   "private": true,
   "proxy": "http://localhost:5000/",
   "dependencies": {
+    "@azure/msal-browser": "^3.7.1",
+    "@azure/msal-react": "^2.0.10",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@fortawesome/fontawesome-free": "^6.5.1",
