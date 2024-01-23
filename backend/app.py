@@ -19,12 +19,16 @@ from tp.templates import main_system_template,cabinet_template,arch_template,sco
 from tp.commercial_questions import analytics_ques_list, download_ques_list
 import googletrans as GT
 from langdetect import detect
-import textract
+# import textract
 import tempfile
 import glob
 from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
+
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalRetrievalChain
+
 # from azure.ai.documentintelligence import DocumentIntelligenceClient
 
 
@@ -56,17 +60,25 @@ embeddings = OpenAIEmbeddings(
 )
 
 # Set up vector store
-splits = ["example text"]  # You should replace this with your actual text data
-vector_store = FAISS.from_texts(splits, embedding=embeddings)
+# splits = ["example text"]  # You should replace this with your actual text data
+# vector_store = FAISS.from_texts(splits, embedding=embeddings)
 
-# Set up retriever
-retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
+# # Set up retriever
+# retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
 # Set up prompt template
-template = """You are an expert in reading RFQ's and Tender/contract Document that helps Finance Team to find Relevant information in a PO. 
-                You are given a Tender document and a question.
-                You need to find the answer to the question in the Tender document.
-                
+template = """You help everyone by answering questions, and improve your answers from previous answers in History.
+                Don't try to make up an answer, if you don't know, just say that you don't know.
+                Answer in the same language the question was asked.
+                Answer in a way that is easy to understand.
+
+                History: {chat_history}
+
+                Context: {context}
+
+                Question: {question}
+                Answer:
+
                 Give me the commercial values if present in the document.
                 Highlight the keywords and numbers or values with '**'. 
                 For Example:
@@ -74,19 +86,19 @@ template = """You are an expert in reading RFQ's and Tender/contract Document th
                 **Daily Drawing LD Amount**
                     
                 Give the answer in sentences or bullet points instead of a paragraph.
-                If the answer is not in the document just say "Information Not Available".
-                {context}
-                Question: {question}
-                Helpful Answer:"""
+                If the answer is not in the document just say "Information Not Available."""
 
-prompt_template = PromptTemplate.from_template(template)
+prompt_template = PromptTemplate.from_template(template,input_variables=["chat_history","context","question"])
+
 
 # Save variables to app context
 app.config['llm'] = llm
 app.config['prompt_template'] = prompt_template
-app.config['vectorstore'] = vector_store
-app.config['retriever'] = retriever
+# app.config['vectorstore'] = vector_store
+# app.config['retriever'] = retriever
 app.config['epoch'] = 1
+
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 def process_file(file_path):
     try:
@@ -203,13 +215,19 @@ def get_files():
     return jsonify({'files': files})
 
 
-def generate_response(llm, retriever_data, prompt_template, query_text):
-
-    qa_interface2 = RetrievalQA.from_chain_type(llm=llm,
+def generate_response(llm, retriever_data, prompt_template, query_text,conversation_memory):
+    
+    qa_interface2 = ConversationalRetrievalChain.from_llm(llm=llm,
                                                 retriever=retriever_data,
-                                                chain_type_kwargs={"prompt":prompt_template},  
-                                                return_source_documents=True)
-    return qa_interface2(query_text)['result']
+                                                memory=conversation_memory,
+                                                combine_docs_chain_kwargs={"prompt":prompt_template})
+    response=qa_interface2({"question":query_text})['answer']
+
+    # qa_interface2 = RetrievalQA.from_chain_type(llm=llm,
+    #                                             retriever=retriever_data,
+    #                                             chain_type_kwargs={"prompt":prompt_template},  
+    #                                             return_source_documents=True)
+    return response
 
 @app.route('/risk_analysis', methods=['GET'])
 def risk_analysis():
@@ -227,7 +245,7 @@ def risk_analysis():
         results = []
 
         for user_friendly_question, download_friendly_question in zip(analytics_ques_list, download_ques_list):
-            generated_response = generate_response(llm, retriever, new_prompt_template, user_friendly_question)
+            generated_response = generate_response(llm, retriever, new_prompt_template, user_friendly_question,memory)
             if 'yes, positive' in generated_response.strip().lower():
                 ai_outcome = 'OK'
                 counter += 1
@@ -269,7 +287,7 @@ def process_input():
         user_input = request.json['user_input']
 
         # Generate response using OpenAI and other data
-        generated_response = generate_response(llm, retriever, prompt_template, user_input)
+        generated_response = generate_response(llm, retriever, prompt_template, user_input,memory)
         
         print(generated_response)
         return jsonify({'success': True, 'generated_response': generated_response})
@@ -446,4 +464,4 @@ def download_legal():
 
             
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0')
