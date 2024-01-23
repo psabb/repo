@@ -4,8 +4,11 @@ import "./Commercial_NavbarContainer.css";
 import GlassMorphContainer from "./Commercial_GlassMorphContainer";
 import MySideNav from "./MySideNav";
 import localGif from "../../assets/abb.png";
+import { UserLogin } from "./UserLogin";
 
-const NavbarContainer = () => {
+interface NavbarContainerProps {}
+
+const NavbarContainer: React.FC<NavbarContainerProps> = (props) => {
   const [isSideMenuOpen, setSideMenuOpen] = useState(false);
 
   return (
@@ -15,6 +18,9 @@ const NavbarContainer = () => {
 
         <div className="logo-container">
           <img src={localGif} alt="Local GIF" className="logo-image" />
+        </div>
+        <div className="user-login-container">
+          <UserLogin {...props} />
         </div>
       </div>
       <GlassMorphContainer

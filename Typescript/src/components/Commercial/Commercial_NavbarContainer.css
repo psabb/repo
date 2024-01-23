@@ -42,3 +42,7 @@
     margin-left: 5rem; /* Adjust the margin as needed */
   }
 }
+
+.user-login-container {
+  margin-left: auto;
+}
