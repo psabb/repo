@@ -7,6 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
 import fitz
 import os
+from datetime import datetime   
 import openai
 import docx2txt
 from flask_cors import CORS
@@ -18,11 +19,15 @@ from tp.templates import main_system_template,cabinet_template,arch_template,sco
 from tp.commercial_questions import analytics_ques_list, download_ques_list
 import googletrans as GT
 from langdetect import detect
-import textract
+# import textract
 import tempfile
 import glob
+from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalRetrievalChain
+# from azure.ai.documentintelligence import DocumentIntelligenceClient
 
 
 app = Flask(__name__)
@@ -53,22 +58,44 @@ embeddings = OpenAIEmbeddings(
 )
 
 # Set up vector store
-splits = ["example text"]  # You should replace this with your actual text data
-vector_store = FAISS.from_texts(splits, embedding=embeddings)
+# splits = ["example text"]  # You should replace this with your actual text data
+# vector_store = FAISS.from_texts(splits, embedding=embeddings)
 
-# Set up retriever
-retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
+# # Set up retriever
+# retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
 # Set up prompt template
-template = """Your prompt template here"""
-prompt_template = PromptTemplate.from_template(template)
+template = """You help everyone by answering questions, and improve your answers from previous answers in History.
+                Don't try to make up an answer, if you don't know, just say that you don't know.
+                Answer in the same language the question was asked.
+                Answer in a way that is easy to understand.
+
+                History: {chat_history}
+
+                Context: {context}
+
+                Question: {question}
+                Answer:
+                
+                Give me the commercial values if present in the document.
+                Highlight the keywords and numbers or values with '**'. 
+                For Example:
+                **Daily LD Amount**
+                **Daily Drawing LD Amount**
+                    
+                Give the answer in sentences or bullet points instead of a paragraph.
+                If the answer is not in the document just say "Information Not Available."""
+
+prompt_template = PromptTemplate.from_template(template,input_variables=["chat_history","context","question"])
 
 # Save variables to app context
 app.config['llm'] = llm
 app.config['prompt_template'] = prompt_template
-app.config['vectorstore'] = vector_store
-app.config['retriever'] = retriever
+# app.config['vectorstore'] = vector_store
+# app.config['retriever'] = retriever
 app.config['epoch'] = 1
+
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 def process_file(file_path):
     try:
@@ -83,21 +110,71 @@ def process_file(file_path):
         
         # Create an empty string to store the text from the file
         text = ""
-        print("Hello")
+        
+# Check file extension to determine the file type
+        file_extension = os.path.splitext(file_path)[1].lower()
+        print("111")
+        if file_extension == '.pdf':
+            print("2222")
+            with open(file_path, "rb") as fd:
+                pdf_data = fd.read()
+                print("3333")
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-layout", pdf_data)
+                print("4444")
+                result = poller.result()
+                text += result.content
+                print(text)
+        
+        elif file_extension == '.doc':
+    # Convert .doc to .docx
+            docx_file_path = file_path.replace(".doc", ".docx")
+            docx2txt.process(file_path, docx_file_path)
+            print(f"Document converted to {docx_file_path}")
 
-        with open(file_path, "rb") as fd:
+            # Analyze the converted .docx file
+            with open(docx_file_path, "rb") as fd:
+                print("000000")
+                pdf_data = fd.read()
+                print("888")
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-layout", pdf_data)
+                print("999")
+                result = poller.result()
+                text = result.content
+                print(text)
 
-            pdf_data = fd.read()
-            print("Hello2")
+        elif file_extension == '.docx':
+            print("666")
+            with open(file_path, "rb") as fd:
+                print("777")
+                pdf_data = fd.read()
+                print("888")
+                poller = document_analysis_client.begin_analyze_document(
+                    "prebuilt-read", pdf_data)
+                print("999")
+                result = poller.result()
+                text += result.content
+                print(text)
+        
+        # elif file_extension == '.doc':
+        #     # Convert .doc to .docx
+        #     docx_file_path = file_path.replace(".doc", ".docx")
+        #     word = Document(file_path)
+        #     word.save(docx_file_path)
+        #     print(f"Document converted to {docx_file_path}")
 
-            poller = document_analysis_client.begin_analyze_document(
-                "prebuilt-layout", pdf_data)
-            print("Hello4")       
-            result = poller.result()
-            res = str(result.content) 
-            text += res
-            print(result.content)
-            print("Hello5")
+        #     # Analyze the converted .docx file
+        #     with open(docx_file_path, "rb") as fd:
+        #         print("santhu")
+        #         pdf_data = fd.read()
+        #         print("nikit")
+        #         poller = document_analysis_client.begin_analyze_document(
+        #             "prebuilt-layout", pdf_data)
+        #         print("999")
+        #         result = poller.result()
+        #         text = result.content
+        #         print(text)
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
@@ -170,13 +247,19 @@ def get_files():
     return jsonify({'files': files})
 
 
-def generate_response(llm, retriever_data, prompt_template, query_text):
-
-    qa_interface2 = RetrievalQA.from_chain_type(llm=llm,
+def generate_response(llm, retriever_data, prompt_template, query_text,conversation_memory):
+    
+    qa_interface2 = ConversationalRetrievalChain.from_llm(llm=llm,
                                                 retriever=retriever_data,
-                                                chain_type_kwargs={"prompt":prompt_template},  
-                                                return_source_documents=True)
-    return qa_interface2(query_text)['result']
+                                                memory=conversation_memory,
+                                                combine_docs_chain_kwargs={"prompt":prompt_template})
+    response=qa_interface2({"question":query_text})['answer']
+
+    # qa_interface2 = RetrievalQA.from_chain_type(llm=llm,
+    #                                             retriever=retriever_data,
+    #                                             chain_type_kwargs={"prompt":prompt_template},  
+    #                                             return_source_documents=True)
+    return response
 
 @app.route('/risk_analysis', methods=['GET'])
 def risk_analysis():
@@ -194,7 +277,7 @@ def risk_analysis():
         results = []
 
         for user_friendly_question, download_friendly_question in zip(analytics_ques_list, download_ques_list):
-            generated_response = generate_response(llm, retriever, new_prompt_template, user_friendly_question)
+            generated_response = generate_response(llm, retriever, new_prompt_template, user_friendly_question,memory)
             if 'yes, positive' in generated_response.strip().lower():
                 ai_outcome = 'OK'
                 counter += 1
@@ -236,14 +319,15 @@ def process_input():
         user_input = request.json['user_input']
 
         # Generate response using OpenAI and other data
-        generated_response = generate_response(llm, retriever, prompt_template, user_input)
-
+        generated_response = generate_response(llm, retriever, prompt_template, user_input,memory)
+        
+        print(generated_response)
         return jsonify({'success': True, 'generated_response': generated_response})
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error processing input: {str(e)}'})  
 
 
-class RichExcelWriter:
+class RichExcelWriter(XlsxWriter):
     def __init__(self, *args, **kwargs):
         super(RichExcelWriter, self).__init__(*args, **kwargs)
 
@@ -259,11 +343,14 @@ class RichExcelWriter:
         else:
             wks = self.book.add_worksheet(sheet_name)
             wks.set_column(0, 0, 40)
-            wks.set_column(1, 5, 50)
+            wks.set_column(1, 5, 70)
+            # Add handler to the worksheet when it's created
             wks.add_write_handler(list, lambda worksheet, row, col, list, style: worksheet._write_rich_string(row, col, *list))
             self.sheets[sheet_name] = wks
         super(RichExcelWriter, self)._write_cells(cells, sheet_name, startrow, startcol, freeze_panes)
 
+
+        
 
 def create_excel_with_formatting_local(df, filename, sheet_name):
     """
@@ -278,16 +365,10 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
     """
     writer = RichExcelWriter(filename)
     workbook = writer.book
-    bold = workbook.add_format({'bold': True})
+    bold = workbook.add_format({'bold': True, 'text_wrap': True})
 
-    # Function to convert HTML bold tags to Excel bold formatting
+     # Function to convert HTML bold tags to Excel bold formatting
     def convert_html_tags(text):
-        """
-        The convert_html_tags function takes a string as input and returns the same string with HTML tags converted to Excel formatting.
-        
-        :param text: Pass in the text that will be formatted
-        :return: A list of formatted strings
-        """
         if isinstance(text, float):
             return ' '
         if '<b>' not in text:
@@ -303,6 +384,7 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
     output = df.to_excel(writer, sheet_name=sheet_name, index=False)
     writer.close()
     return output
+
 
 @app.route('/generate_excel', methods=['GET'])
 def generate_excel():
@@ -361,13 +443,14 @@ def generate_excel():
             df.loc[df['Systems'] == system, ['IO']] = io_response
 
         # Create the full path for the Excel file
-            excel_filename = os.path.join(os.path.expanduser("~"), "Downloads", f"Technical_Report.xlsx")
-            df.to_excel(excel_filename, index=False)
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        excel_filename = os.path.join(os.path.expanduser("~"), "Downloads", f"Technical_Report_{timestamp}.xlsx")
+        df.to_excel(excel_filename, index=False)
 
-            # Apply formatting to the generated Excel file
-            create_excel_with_formatting_local(df, excel_filename, sheet_name='Sheet1')
+        # Apply formatting to the generated Excel file
+        create_excel_with_formatting_local(df, excel_filename, sheet_name='Sheet1')
 
-            return jsonify({'success': True, 'message': f'file generated successfully'})
+        return jsonify({'success': True, 'message': f'file generated successfully'})
 
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error generating Excel file: {str(e)}'})
@@ -400,8 +483,11 @@ def download_legal():
             data_xl.loc[len(data_xl)] = [topic[i], query1, str(response)]
             i += 1
         
-        excel_filename = "C:\\Users\\INSAN27\\Downloads\\legal_excel_file.xlsx"
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        excel_filename = os.path.join(os.path.expanduser("~"), "Downloads", f"Legal_Report_{timestamp}.xlsx")
         data_xl.to_excel(excel_filename, index=False)
+
+        create_excel_with_formatting_local(data_xl, excel_filename, sheet_name='Sheet1')
 
         return jsonify({'success': True, 'message': f'File "{excel_filename}" generated successfully'})
 
@@ -410,4 +496,4 @@ def download_legal():
 
             
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0')
