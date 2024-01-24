@@ -310,7 +310,6 @@ class RichExcelWriter(XlsxWriter):
             wks = self.sheets[sheet_name]
         else:
             wks = self.book.add_worksheet(sheet_name)
-            #bold = workbook.add_format({'text_wrap':True,'bg_color':"#FFC7CE"})
             wks.set_column(0, 0, 40)
             wks.set_column(1, 5, 70)
             # Add handler to the worksheet when it's created
@@ -331,21 +330,19 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
     """
 
     writer = RichExcelWriter(filename)
-    #df.reset_index(drop=True, inplace=True)
 
     workbook = writer.book
-    bold = workbook.add_format({ 'text_wrap': True})
+    bold = workbook.add_format({'bold': True, 'text_wrap': True})
     format1 = workbook.add_format({"bg_color": "#FFC7CE", "font_color": "#9C0006"})
 
-    ############### Added Below code for excel wrapping ##################
-        
+    # Added Below code for excel wrapping
     if sheet_name not in writer.sheets:
         writer.sheets["Output"] = writer.book.add_worksheet("Output")
         worksheet = writer.sheets["Output"]
-        
-        worksheet.set_column(0, 0, 40,bold)
-        worksheet.set_column(1, 5, 70,bold)
-        #worksheet.set_column(2, 2, 25)
+
+        worksheet.set_column(0, 0, 40, bold)
+        worksheet.set_column(1, 5, 70, bold)
+
         header_format = workbook.add_format(
             {
                 "bold": True,
@@ -353,22 +350,11 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
                 "valign": "top",
                 "fg_color": "#ADD8E6",
                 "border": 1,
-                
+                "align": "center",  # Center alignment added
             }
-        ) 
-    try:
-        output = df.to_excel(writer, sheet_name="Output", startrow=1, header=False,index=False)
-        # Write the column headers with the defined format.
-        for col_num, value in enumerate(df.columns.values):
-            worksheet.write(0, col_num , value, header_format)
-
-        # Close the Pandas Excel writer and output the Excel file.
-        writer.close()
-    #data_xl.to_excel(r"RFQ-summary-rating.xlsx", index=False, engine='openpyxl').encode('utf-8')
-    except AttributeError:
-        pass
-
-     # Function to convert HTML bold tags to Excel bold formatting
+        )
+        
+         # Function to convert HTML bold tags to Excel bold formatting
     def convert_html_tags(text):
         if isinstance(text, float):
             return ' '
@@ -376,13 +362,27 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
             return text
         parts = re.split(r'(<b>|</b>)', text)
         formatted_parts = [bold if part == '<b>' else part for part in parts if part != '</b>']
-        return ''.join(formatted_parts)
+        return formatted_parts
 
     # Apply the function to each cell in the DataFrame
     for col in df.columns:
         df[col] = df[col].apply(convert_html_tags)
 
-    return output
+
+    
+        try:
+            output = df.to_excel(writer, sheet_name="Output", startrow=1, header=False, index=False)
+
+            for col_num, value in enumerate(df.columns.values):
+                worksheet.write(0, col_num , value, header_format)
+
+            writer.close()
+        except AttributeError:
+            pass
+
+        return output
+
+
 
 
 @app.route('/generate_excel', methods=['GET'])
