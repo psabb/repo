@@ -332,7 +332,7 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
     writer = RichExcelWriter(filename)
 
     workbook = writer.book
-    bold = workbook.add_format({'bold': True, 'text_wrap': True})
+    bold = workbook.add_format({'text_wrap': True})
     format1 = workbook.add_format({"bg_color": "#FFC7CE", "font_color": "#9C0006"})
 
     # Added Below code for excel wrapping

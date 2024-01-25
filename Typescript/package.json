@@ -61,7 +61,9 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"npm run start-react\" \"npm run start-flask\"",
+    "start-react": "react-scripts start",
+    "start-flask": "cd ../backend && python app.py",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -87,6 +89,7 @@
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/file-saver": "^2.0.7",
-    "@types/react-fontawesome": "^1.6.8"
+    "@types/react-fontawesome": "^1.6.8",
+    "concurrently": "^8.2.2"
   }
 }

@@ -26,7 +26,7 @@ cabinet_template = """Act as a Request for Quote (RFQ) Analystt that helps Bid T
                             Matrix/Mimc Console: Can be either "Yes","No" )
 
                             Don't Miss any Keywords in the given format. If you don't find answer for a particular keywords answer it as 'Not available'
-                            Highlight the keywords present in the output. Surround the keywords with <b> tags. Example: Like this, "The quick <b>keyword1</b> jumps over the lazy <b>keyword2</b>."
+                            Highlight the keywords present in the output.
                             Also Give the answer under which heading does it belong to.
                             If you don't know the answer, just say that you don't know, don't try to make up an answer.  
                             Always say "thanks for asking!" at the end of the answer.
@@ -38,7 +38,6 @@ arch_template = """Act as a Request for Quote (RFQ) Analyst that helps Bid Team 
                         Give me the output in bullet points.
                         Cover the technical keywords given in triple backticks while giving the answer.
                         ```{keywords}```
-                        Surround all the Technical keywords with <b> tags. Example: Like this, "The architecture will support <b>hot mode (online)</b>  replacement of faulty modules without degradation of system functionality, <b>SIL 3 integrity</b> , and high availability."
                         Give me the page number also from where you have fetched the answer from, if there are multiple pages give all of them.
                         Also Give the answer under which heading does it belong to.
                         If you don't know the answer, just say that you don't know, don't try to make up an answer.  
@@ -46,7 +45,6 @@ arch_template = """Act as a Request for Quote (RFQ) Analyst that helps Bid Team 
                         Question: {question}"""
 
 scope_template = """You are an Analyst and information extractor for the provided 'Request for Quote (RFQ)' document and your task is to identify and provide relevant summarized answer in just one or two lines from the provided RFQ document for the asked question instead of giving a lengthy or detailed response. 
-                            Surround all the technical keywords with <b> tags, for Example: "Design and supply of the <b>PCS Auxiliary Cabinets</b>"
 
                             Give me the page number also from where you have fetched the answer from, if there are multiple pages give all of them.
                             Also if the answer is fetched from a paragraph/section with heading give the heading/section name.
