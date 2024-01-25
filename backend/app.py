@@ -180,7 +180,7 @@ def process_file(file_path):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+     return send_from_directory('./build', 'index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():
