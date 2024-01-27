@@ -130,25 +130,6 @@ def process_file(file_path):
                 result = poller.result()
                 text += result.content
                 print(text)
-        
-        # elif file_extension == '.doc':
-        #     # Convert .doc to .docx
-        #     docx_file_path = file_path.replace(".doc", ".docx")
-        #     word = Document(file_path)
-        #     word.save(docx_file_path)
-        #     print(f"Document converted to {docx_file_path}")
-
-        #     # Analyze the converted .docx file
-        #     with open(docx_file_path, "rb") as fd:
-        #         print("santhu")
-        #         pdf_data = fd.read()
-        #         print("nikit")
-        #         poller = document_analysis_client.begin_analyze_document(
-        #             "prebuilt-layout", pdf_data)
-        #         print("999")
-        #         result = poller.result()
-        #         text = result.content
-        #         print(text)
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
