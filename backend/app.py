@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 from langchain.chat_models import AzureChatOpenAI
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -28,7 +28,7 @@ from azure.ai.formrecognizer import DocumentAnalysisClient
 # from azure.ai.documentintelligence import DocumentIntelligenceClient
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='react_app/build')
 CORS(app)
 
 openai.api_type = "azure"
@@ -178,9 +178,14 @@ def process_file(file_path):
         return {'success': False, 'message': f'Error processing file: {str(e)}'}
 
 
-@app.route('/')
-def index():
-     return send_from_directory('./build', 'index.html')
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -495,4 +500,4 @@ def download_legal():
 
             
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(use_reloader=True, port=5000, threaded=True)
