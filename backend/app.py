@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_file
 from langchain.chat_models import AzureChatOpenAI
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -28,7 +28,7 @@ from azure.ai.formrecognizer import DocumentAnalysisClient
 # from azure.ai.documentintelligence import DocumentIntelligenceClient
 
 
-app = Flask(__name__, static_folder='react_app/build')
+app = Flask(__name__)
 CORS(app)
 
 openai.api_type = "azure"
@@ -130,6 +130,25 @@ def process_file(file_path):
                 result = poller.result()
                 text += result.content
                 print(text)
+        
+        # elif file_extension == '.doc':
+        #     # Convert .doc to .docx
+        #     docx_file_path = file_path.replace(".doc", ".docx")
+        #     word = Document(file_path)
+        #     word.save(docx_file_path)
+        #     print(f"Document converted to {docx_file_path}")
+
+        #     # Analyze the converted .docx file
+        #     with open(docx_file_path, "rb") as fd:
+        #         print("santhu")
+        #         pdf_data = fd.read()
+        #         print("nikit")
+        #         poller = document_analysis_client.begin_analyze_document(
+        #             "prebuilt-layout", pdf_data)
+        #         print("999")
+        #         result = poller.result()
+        #         text = result.content
+        #         print(text)
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_text(text)
@@ -159,14 +178,9 @@ def process_file(file_path):
         return {'success': False, 'message': f'Error processing file: {str(e)}'}
 
 
-# Serve React App
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -481,4 +495,4 @@ def download_legal():
 
             
 if __name__ == '__main__':
-    app.run(use_reloader=True, port=5000, threaded=True)
+    app.run(debug=True)
