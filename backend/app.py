@@ -275,7 +275,7 @@ def risk_analysis():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error during risk analysis: {str(e)}'})
 
-@app.route('/process_input', methods=['POST','GET'])
+@app.route('/process_input', methods=['POST'])
 def process_input():
     try:
         # Retrieve necessary data from the app context
