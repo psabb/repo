@@ -165,10 +165,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         setMessages((prevMessages) => [...prevMessages, dropdownUserMessage]);
       }
 
-      // Fetch system response using the updated fetchSystemResponse function
-      const systemResponse = await FileUploadService.fetchSystemResponse(
-        userMessage
-      );
+      // Fetch system response
+      const systemResponse = await fetchSystemResponse(userMessage);
 
       // Hide loading spinner for user message
       setMessages((prevMessages) => {
@@ -189,8 +187,31 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         }
         return prevMessages;
       });
-    } catch (error: any) {
-      console.error("Error sending message:", error.message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
+  const fetchSystemResponse = async (userMessage: string) => {
+    try {
+      const response = await fetch("/process_input", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_input: userMessage }),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        return responseData.generated_response;
+      } else {
+        console.error("Failed to fetch system response");
+        return "Error: Unable to fetch system response";
+      }
+    } catch (error) {
+      console.error("Error fetching system response:", error);
+      return "Error: Unable to fetch system response";
     }
   };
 

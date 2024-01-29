@@ -95,29 +95,6 @@ const legalExcel = async (): Promise<any> => {
   }
 };
 
-const fetchSystemResponse = async (userMessage: string): Promise<string> => {
-  try {
-    const response = await fetch("/process_input", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ user_input: userMessage }),
-    });
-
-    if (response.ok) {
-      const responseData = await response.json();
-      return responseData.generated_response;
-    } else {
-      console.error("Failed to fetch system response");
-      return "Error: Unable to fetch system response";
-    }
-  } catch (error: any) {
-    console.error("Error fetching system response:", error.message);
-    return "Error: Unable to fetch system response";
-  }
-};
-
 const FileUploadService = {
   upload,
   processFile,
@@ -126,7 +103,6 @@ const FileUploadService = {
   getRiskAnalysisResults,
   generateExcel,
   legalExcel,
-  fetchSystemResponse,
 };
 
 export default FileUploadService;
