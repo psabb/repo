@@ -367,6 +367,8 @@ def create_excel_with_formatting_local(df, filename, sheet_name):
     # Apply the function to each cell in the DataFrame
     for col in df.columns:
         df[col] = df[col].apply(convert_html_tags)
+
+
     
         try:
             output = df.to_excel(writer, sheet_name="Output", startrow=1, header=False, index=False)
