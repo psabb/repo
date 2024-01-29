@@ -1,0 +1,16 @@
+@font-face {
+  font-family: "ABBvoice";
+  src: local("ABBvoice"), url(./fonts/ABBvoice_TWHK_Rg.ttf) format("opentype");
+}
+
+@font-face {
+  font-family: "ABBvoice";
+  font-weight: 900;
+  src: local("ABBvoice"), url(./fonts//ABBvoice_TWHK_Bd.ttf) format("opentype");
+}
+
+@font-face {
+  font-family: "ABBvoice";
+  font-weight: 900;
+  src: local("ABBvoice"), url(./fonts/Lato-Black.otf) format("opentype");
+}

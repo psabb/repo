@@ -1,0 +1,12 @@
+{
+  "legal": [
+    {
+      "topic": "Confidentiality Obligations",
+      "instruction": "Direct the chatbot to extract and provide details regarding the Confidentiality Obligations outlined in the RFQ document, with a focus on ensuring confidentiality protections for both parties involved. Instruct the chatbot to identify and explain any clauses, conditions, or obligations related to the protection of confidential information. Additionally, request a summary or key points that highlight how confidentiality is addressed and ensured for both parties within the context of the RFQ. This will help in understanding the terms and measures in place to safeguard sensitive information during the quotation process."
+    },
+    {
+      "topic": "Dispute Resolution Mechanism",
+      "instruction": "Ask the chatbot to extract and provide details regarding the Dispute Resolution Mechanism specified in the RFQ document. Instruct the chatbot to identify and explain any clauses, conditions, or provisions related to the selection of a dispute resolution method, specifically focusing on whether it involves a sole arbitrator, three arbitrators, OEC (Online Dispute Resolution), or a Mediation Body. Additionally, request a summary or key points that highlight the nature and processes associated with the chosen dispute resolution mechanism within the context of the RFQ. This will aid in understanding how disputes are intended to be resolved between the parties involved in the quotation process."
+    }
+  ]
+}

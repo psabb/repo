@@ -1,0 +1,43 @@
+/* Popup.css */
+.popup-container {
+  position: absolute; /* Change to absolute position */
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%); /* Center the popup */
+  background: rgba(255, 255, 255, 1); /* Solid white background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.popup {
+  background: white;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #db3434;
+}
+
+.close-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.custom-gif {
+  width: 100px;
+  height: 100px;
+  margin-left: 35%;
+}
+
+.aboveline {
+  color: #f10505;
+  margin-top: -60px;
+  margin-bottom: -10px;
+}
