@@ -14,7 +14,7 @@ streamlit==1.28.2
 streamlit-chat==0.1.1
 streamlit-extras==0.3.5
 tiktoken==0.5.1
-faiss-cpu==1.7.4
+faiss-cpu
 openpyxl
 docx2txt==0.8
 langdetect
