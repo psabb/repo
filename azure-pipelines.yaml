@@ -27,12 +27,7 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-
-- task: AzureRmWebAppDeployment@4
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
   inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'ABB-IN-OPC-01 (09a2a035-e105-4383-970b-901b13e3cf62)'
-    appType: 'webApp'
-    WebAppName: 'rfqsummarizer'
-    packageForLinux: '$(Build.ArtifactStagingDirectory)/*'
-  displayName: 'Deploy to Azure App Service'
+    PathtoPublish: build
