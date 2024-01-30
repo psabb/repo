@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+    - refs/heads/RFQ_DEMO_BRANCH
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: refs/heads/RFQ_DEMO_BRANCH
+jobs:
+- job: Job_1
+  displayName: Agent job 1
+  pool:
+    vmImage: windows-2019
+  steps:
+  - checkout: self
+    fetchDepth: 1
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.11
+    inputs:
+      versionSpec: 3.11
+  - script: |
+      python -m venv antenv
+      source antenv/bin/activate
+      python -m pip install --upgrade pip
+      pip install setup
+      pip install -r ./backend/requirements.txt
+  - task: Npm@1
+    displayName: npm install
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: install --force
+  - task: Npm@1
+    displayName: npm start
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: run build
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    inputs:
+      PathtoPublish: build
+...
