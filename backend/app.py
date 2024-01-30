@@ -17,11 +17,6 @@ import re
 from flask import jsonify
 from tp.templates import main_system_template,cabinet_template,arch_template,scope_template,bom_template,io_template,new_template,template,com_template
 from tp.commercial_questions import analytics_ques_list, download_ques_list
-import googletrans as GT
-from langdetect import detect
-import textract
-import tempfile
-import glob
 from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
