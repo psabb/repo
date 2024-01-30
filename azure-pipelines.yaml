@@ -8,6 +8,15 @@ variables:
   pythonVersion: '3.11.5'
 
 steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(pythonVersion)'
+    addToPath: true
+
+- script: |
+    pip install -r backend/requirements.txt
+  displayName: 'Install Python dependencies'
+
 - task: NodeTool@0
   inputs:
     versionSpec: '18.x'
@@ -18,14 +27,6 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(pythonVersion)'
-    addToPath: true
-
-- script: |
-    pip install -r backend/requirements.txt
-  displayName: 'Install Python dependencies'
 
 - task: AzureRmWebAppDeployment@4
   inputs:
