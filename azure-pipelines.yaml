@@ -1,5 +1,5 @@
 trigger:
-- master
+- RFQ_DEMO_BRANCH
 
 pool:
   vmImage: 'windows-latest'
