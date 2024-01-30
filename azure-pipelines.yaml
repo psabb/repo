@@ -24,7 +24,6 @@ steps:
     addToPath: true
 
 - script: |
-    python -m pip install --upgrade pip
     pip install -r backend/requirements.txt
   displayName: 'Install Python dependencies'
 
