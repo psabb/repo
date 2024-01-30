@@ -22,4 +22,4 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
   inputs:
-    PathtoPublish: C:\home\site\wwwroot
+    PathtoPublish: $(Build.ArtifactStagingDirectory)
