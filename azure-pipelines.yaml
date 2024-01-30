@@ -15,7 +15,7 @@ steps:
  
 - script: |
     pip install -r backend/requirements.txt
-    python -m backend/run_waitres_server.py
+    python backend/run_waitres_server.py
   displayName: 'Install Python dependencies'
  
 - task: NodeTool@0
