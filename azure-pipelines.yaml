@@ -31,7 +31,7 @@ steps:
 - task: AzureRmWebAppDeployment@4
   inputs:
     ConnectionType: 'AzureRM'
-    azureSubscription: '09a2a035-e105-4383-970b-901b13e3cf62'
+    azureSubscription: 'ABB-IN-OPC-01 (09a2a035-e105-4383-970b-901b13e3cf62)'
     appType: 'webApp'
     WebAppName: 'rfqsummarizer'
     packageForLinux: '$(Build.ArtifactStagingDirectory)/*'
