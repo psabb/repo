@@ -61,9 +61,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "concurrently \"npm run start-react\" \"npm run start-flask\"",
-    "start-react": "react-scripts start",
-    "start-flask": "cd ./backend && python run_waitres_server.py",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
