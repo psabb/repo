@@ -20,4 +20,5 @@ openpyxl
 docx2txt==0.8
 langdetect
 googletrans==4.0.0-rc1
+waitress==1.0.1
 # textract==1.6.5
