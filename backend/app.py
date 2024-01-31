@@ -17,11 +17,6 @@ import re
 from flask import jsonify
 from tp.templates import main_system_template,cabinet_template,arch_template,scope_template,bom_template,io_template,new_template,template,com_template
 from tp.commercial_questions import analytics_ques_list, download_ques_list
-import googletrans as GT
-from langdetect import detect
-import textract
-import tempfile
-import glob
 from pandas.io.excel._xlsxwriter import XlsxWriter
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
@@ -56,11 +51,11 @@ embeddings = OpenAIEmbeddings(
 )
 
 # Set up vector store
-splits = ["example text"]  # You should replace this with your actual text data
-vector_store = FAISS.from_texts(splits, embedding=embeddings)
+# splits = ["example text"]  # You should replace this with your actual text data
+# vector_store = FAISS.from_texts(splits, embedding=embeddings)
 
-# Set up retriever
-retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
+# # Set up retriever
+# retriever = FAISS.load_local('vector_store', embeddings).as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
 # Set up prompt template
 template = """You are an expert in reading RFQ's and Tender/contract Document that helps Finance Team to find Relevant information in a PO. 
@@ -84,98 +79,99 @@ prompt_template = PromptTemplate.from_template(template)
 # Save variables to app context
 app.config['llm'] = llm
 app.config['prompt_template'] = prompt_template
-app.config['vectorstore'] = vector_store
-app.config['retriever'] = retriever
+# app.config['vectorstore'] = vector_store
+# app.config['retriever'] = retriever
 app.config['epoch'] = 1
 
 def process_file(file_path):
-    try:
+    print("Inside Process function")
+    # try:
         # Your existing logic for processing the file
-        embeddings = OpenAIEmbeddings(
-            chunk_size=1,
-            openai_api_key=openai.api_key,
-            openai_api_version=openai.api_version,
-            openai_api_base=openai.api_base,
-            deployment_id="rfq-embeddings"
-        )
-        
-        # Create an empty string to store the text from the file
-        text = ""
-        
+    embeddings = OpenAIEmbeddings(
+        chunk_size=1,
+        openai_api_key=openai.api_key,
+        openai_api_version=openai.api_version,
+        openai_api_base=openai.api_base,
+        deployment_id="rfq-embeddings"
+    )
+    
+    # Create an empty string to store the text from the file
+    text = ""
+    
 # Check file extension to determine the file type
-        file_extension = os.path.splitext(file_path)[1].lower()
-        print("111")
-        if file_extension == '.pdf':
-            print("2222")
-            with open(file_path, "rb") as fd:
-                pdf_data = fd.read()
-                print("3333")
-                poller = document_analysis_client.begin_analyze_document(
-                    "prebuilt-layout", pdf_data)
-                print("4444")
-                result = poller.result()
-                text += result.content
-                print(text)
+    file_extension = os.path.splitext(file_path)[1].lower()
+    print("111")
+    if file_extension == '.pdf':
+        print("2222")
+        with open(file_path, "rb") as fd:
+            pdf_data = fd.read()
+            print("3333")
+            poller = document_analysis_client.begin_analyze_document(
+                "prebuilt-layout", pdf_data)
+            print("4444")
+            result = poller.result()
+            text += result.content
+            print(text)
 
 
-        elif file_extension == '.docx':
-            print("666")
-            with open(file_path, "rb") as fd:
-                print("777")
-                pdf_data = fd.read()
-                print("888")
-                poller = document_analysis_client.begin_analyze_document(
-                    "prebuilt-read", pdf_data)
-                print("999")
-                result = poller.result()
-                text += result.content
-                print(text)
-        
-        # elif file_extension == '.doc':
-        #     # Convert .doc to .docx
-        #     docx_file_path = file_path.replace(".doc", ".docx")
-        #     word = Document(file_path)
-        #     word.save(docx_file_path)
-        #     print(f"Document converted to {docx_file_path}")
+    elif file_extension == '.docx':
+        print("666")
+        with open(file_path, "rb") as fd:
+            print("777")
+            pdf_data = fd.read()
+            print("888")
+            poller = document_analysis_client.begin_analyze_document(
+                "prebuilt-read", pdf_data)
+            print("999")
+            result = poller.result()
+            text += result.content
+            print(text)
+    
+    # elif file_extension == '.doc':
+    #     # Convert .doc to .docx
+    #     docx_file_path = file_path.replace(".doc", ".docx")
+    #     word = Document(file_path)
+    #     word.save(docx_file_path)
+    #     print(f"Document converted to {docx_file_path}")
 
-        #     # Analyze the converted .docx file
-        #     with open(docx_file_path, "rb") as fd:
-        #         print("santhu")
-        #         pdf_data = fd.read()
-        #         print("nikit")
-        #         poller = document_analysis_client.begin_analyze_document(
-        #             "prebuilt-layout", pdf_data)
-        #         print("999")
-        #         result = poller.result()
-        #         text = result.content
-        #         print(text)
+    #     # Analyze the converted .docx file
+    #     with open(docx_file_path, "rb") as fd:
+    #         print("santhu")
+    #         pdf_data = fd.read()
+    #         print("nikit")
+    #         poller = document_analysis_client.begin_analyze_document(
+    #             "prebuilt-layout", pdf_data)
+    #         print("999")
+    #         result = poller.result()
+    #         text = result.content
+    #         print(text)
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        splits = text_splitter.split_text(text)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    splits = text_splitter.split_text(text)
 
-        directory = "vector_store"
-        vectorstore = FAISS.from_texts(splits, embedding=embeddings)
-        vectorstore.save_local(directory)
-        vector_index = FAISS.load_local('vector_store',
-                                        OpenAIEmbeddings(openai_api_key=openai.api_key,
-                                                        deployment_id="rfq-embeddings"))
-        retriever = vector_index.as_retriever(search_type="similarity", search_kwargs={"k": 10})
+    directory = "vector_store"
+    vectorstore = FAISS.from_texts(splits, embedding=embeddings)
+    vectorstore.save_local(directory)
+    vector_index = FAISS.load_local('vector_store',
+                                    OpenAIEmbeddings(openai_api_key=openai.api_key,
+                                                    deployment_id="rfq-embeddings"))
+    retriever = vector_index.as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
-        
-        prompt_template = PromptTemplate.from_template(template)
+    
+    prompt_template = PromptTemplate.from_template(template)
 
-        # Save values to app context
-        app.config['prompt_template'] = prompt_template
-        app.config['vectorstore'] = vectorstore
-        app.config['retriever'] = retriever
+    # Save values to app context
+    app.config['prompt_template'] = prompt_template
+    app.config['vectorstore'] = vectorstore
+    app.config['retriever'] = retriever
 
-        # Increment epoch
-        app.config['epoch'] += 1
+    # Increment epoch
+    app.config['epoch'] += 1
 
-        return {'success': True, 'message': 'File processed successfully'}
+    return {'success': True, 'message': 'File processed successfully'}
 
-    except Exception as e:
-        return {'success': False, 'message': f'Error processing file: {str(e)}'}
+    # except Exception as e:
+    #     return {'success': False, 'message': f'Error processing file: {str(e)}'}
 
 
 @app.route('/')
@@ -495,4 +491,4 @@ def download_legal():
 
             
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
