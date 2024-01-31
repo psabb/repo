@@ -6,7 +6,7 @@ import axios, {
 } from "axios";
 
 const http = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://github-backend.azurewebsites.net/",
   headers: {
     "Content-type": "application/json",
   },
