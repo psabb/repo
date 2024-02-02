@@ -9,6 +9,7 @@ const http = axios.create({
   baseURL: "https://github-backend.azurewebsites.net",
   headers: {
     "Content-type": "application/json",
+    "Access-Control-Allow-Origin": "*",
   },
 });
 
