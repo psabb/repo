@@ -1,21 +1,23 @@
-const baseApiUrl = "https://github-backend.azurewebsites.net/";
+import http, { AxiosResponse, AxiosProgressEvent } from "../http-common";
 
-const upload = (file: any) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
+const upload = (
+  file: File,
+  onUploadProgress: (progressEvent: AxiosProgressEvent) => void
+): Promise<AxiosResponse<any>> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/upload`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    let formData = new FormData();
+    formData.append("file", file);
+
+    http
+      .post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress,
       })
-      .then((data) => resolve(data))
+      .then((response: AxiosResponse<any>) => {
+        resolve(response);
+      })
       .catch((error) => {
         console.error("Error uploading file:", error.message);
         reject(error);
@@ -23,18 +25,13 @@ const upload = (file: any) => {
   });
 };
 
-const processFile = () => {
+const processFile = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/process`, {
-      method: "POST",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    http
+      .post("/process")
+      .then((response: AxiosResponse<any>) => {
+        resolve(response.data);
       })
-      .then((data) => resolve(data))
       .catch((error) => {
         console.error("Error processing file:", error.message);
         reject(error);
@@ -42,16 +39,13 @@ const processFile = () => {
   });
 };
 
-const getFiles = () => {
+const getFiles = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/files`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    http
+      .get("/files")
+      .then((response: AxiosResponse<any>) => {
+        resolve(response.data);
       })
-      .then((data) => resolve(data))
       .catch((error) => {
         console.error("Error fetching files:", error.message);
         reject(error);
@@ -59,18 +53,13 @@ const getFiles = () => {
   });
 };
 
-const riskAnalysis = () => {
+const riskAnalysis = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/risk_analysis`, {
-      method: "POST",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    http
+      .post("/risk_analysis")
+      .then((response: AxiosResponse<any>) => {
+        resolve(response.data);
       })
-      .then((data) => resolve(data))
       .catch((error) => {
         console.error("Error triggering risk analysis:", error.message);
         reject(error);
@@ -78,16 +67,13 @@ const riskAnalysis = () => {
   });
 };
 
-const getRiskAnalysisResults = () => {
+const getRiskAnalysisResults = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/risk_analysis`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    http
+      .get("/risk_analysis")
+      .then((response: AxiosResponse<any>) => {
+        resolve(response.data);
       })
-      .then((data) => resolve(data))
       .catch((error) => {
         console.error("Error fetching risk analysis results:", error.message);
         reject(error);
@@ -95,13 +81,11 @@ const getRiskAnalysisResults = () => {
   });
 };
 
-const generateExcel = () => {
+const generateExcel = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/generate_excel`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+    http
+      .get("/generate_excel")
+      .then((response: AxiosResponse<any>) => {
         resolve(response);
       })
       .catch((error) => {
@@ -111,16 +95,13 @@ const generateExcel = () => {
   });
 };
 
-const legalExcel = () => {
+const legalExcel = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    fetch(`${baseApiUrl}/generate_legal_excel`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
+    http
+      .get("/generate_legal_excel")
+      .then((response: AxiosResponse<any>) => {
+        resolve(response.data);
       })
-      .then((data) => resolve(data))
       .catch((error) => {
         console.error("Error downloading Excel file:", error);
         reject(error);
