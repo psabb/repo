@@ -25,7 +25,7 @@ const upload = (
 const processFile = async (): Promise<any> => {
   try {
     // Send a request to trigger the file processing on the server
-    const response = await http.post("/process");
+    const response = await http.post("/processfile");
     return response.data;
   } catch (error: any) {
     console.error("Error processing file:", error.message);
