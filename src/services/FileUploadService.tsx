@@ -95,6 +95,17 @@ const legalExcel = async (): Promise<any> => {
   }
 };
 
+const clearConfig = async (): Promise<any> => {
+  try {
+    // Make a GET request to the "/generate_legal_excel" endpoint
+    const response = await http.post("/clear_config");
+  } catch (error: any) {
+    // Handle errors that may occur during the request
+    console.error("error clearing console:", error);
+    throw error; // Re-throw the error to be caught by the calling function
+  }
+};
+
 const FileUploadService = {
   upload,
   processFile,
@@ -103,6 +114,7 @@ const FileUploadService = {
   getRiskAnalysisResults,
   generateExcel,
   legalExcel,
+  clearConfig
 };
 
 export default FileUploadService;

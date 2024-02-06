@@ -47,6 +47,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [selectedRadioButton, setSelectedRadioButton] = useState("option1");
+  const [currentFiles, setCurrentFiles] = useState<File[]>([]);
 
   const currentOptions: Question[] =
     optionsMap[selectedRadioButton as keyof typeof optionsMap];
@@ -240,10 +241,10 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
   const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target;
-    const selectedFile = files?.[0];
+    const selectedFiles = Array.from(files || []);
 
-    if (selectedFile) {
-      setCurrentFile(selectedFile);
+    if (selectedFiles.length > 0) {
+      setCurrentFiles(selectedFiles);
       setProgress(0);
       setMessage("");
 
@@ -256,21 +257,31 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     setLoading(true);
     setProgress(0);
 
-    if (!currentFile) {
+    if (!currentFiles || currentFiles.length === 0) {
       setLoading(false);
       return;
     }
 
-    UploadService.upload(currentFile, (event: any) => {
-      setProgress(Math.round((100 * event.loaded) / event.total));
-    })
-      .then((response) => {
-        setMessage("File uploaded successfully");
-        console.log("File uploaded successfully");
-        setMenuOpen(true);
+    const uploadPromises: Promise<void>[] = currentFiles.map((file) => {
+      return new Promise<void>(async (resolve, reject) => {
+        try {
+          await UploadService.upload(file, (event: any) => {
+            setProgress(Math.round((100 * event.loaded) / event.total));
+          });
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+
+    Promise.all(uploadPromises)
+      .then(() => {
+        setMessage("Files uploaded successfully");
+        console.log("Files uploaded successfully");
+        triggerProcessFile();
         setMessages([]);
         setUploadButtonClicked(true);
-        scrollToBottom();
         return UploadService.getFiles();
       })
       .then((files) => {
@@ -297,7 +308,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
             clearMessage();
           }, 5000);
         } else {
-          setMessage("Could not upload the file!");
+          setMessage("Could not upload the files!");
           setTimeout(() => {
             clearMessage();
           }, 5000);
@@ -306,6 +317,31 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       .finally(() => {
         setLoading(false); // Set loading to false regardless of success or error
       });
+  };
+  
+  const triggerProcessFile = async () => {
+    try {
+      console.log("Triggering /processfile...");
+      setLoading(true); 
+   
+      const response = await fetch("/processfile", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+   
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Success:", result);
+      } else {
+        console.error("Failed to trigger /processfile");
+      }
+    } catch (error) {
+      console.error("Error triggering /processfile:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deleteFile = async () => {
@@ -328,6 +364,19 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
   const clearMessage = () => {
     setMessage("");
+  };
+
+  const clear = async () => {
+    try {
+      console.log("clear config triggered");
+      const response = await FileUploadService.clearConfig();
+      console.log("response received");
+      // Close the warning toast once the download is complete
+      // Show a success toast after a successful download
+    } catch (error: any) {
+      // Handle errors
+      console.error("Error:", error.message);
+    }
   };
 
   return (
@@ -355,7 +404,10 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                     className={`text-danger cursor-pointer ${
                       !currentFile ? "disabled" : ""
                     }`}
-                    onClick={deleteFile}
+                    onClick={() => {
+                      deleteFile();
+                      clear();
+                    }}
                     style={{ marginLeft: 50, height: 20, marginTop: 5 }}
                   />
                 </div>
@@ -363,7 +415,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                 <div>
                   <button
                     className="btn btn-danger btn-sm upload"
-                    disabled={!currentFile || loading} // Disable button when loading
+                    disabled={!currentFiles || currentFiles.length === 0 || loading}// Disable button when loading
                     onClick={upload}
                     style={{ marginLeft: "70px" }}
                   >
