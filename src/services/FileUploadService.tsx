@@ -100,15 +100,20 @@ const legalExcel = async (): Promise<any> => {
 
 const processfile = async (): Promise<any> => {
   try {
-    // Make a GET request to the "/generate_legal_excel" endpoint
     const response = await http.get("/processfile");
-
-    // Return the JSON data from the response
     return response.data;
   } catch (error: any) {
-    // Handle errors that may occur during the request
-    console.error("Error downloading Excel file:", error);
-    throw error; // Re-throw the error to be caught by the calling function
+    if (error.response) {
+      console.error(
+        "Server responded with error status:",
+        error.response.status
+      );
+    } else if (error.request) {
+      console.error("No response received from the server");
+    } else {
+      console.error("Error setting up the request:", error.message);
+    }
+    throw error;
   }
 };
 
