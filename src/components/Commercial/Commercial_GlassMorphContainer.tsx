@@ -318,19 +318,14 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         setLoading(false); // Set loading to false regardless of success or error
       });
   };
-  
+
   const triggerProcessFile = async () => {
     try {
       console.log("Triggering /processfile...");
-      setLoading(true); 
-   
-      const response = await fetch("/processfile", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-   
+      setLoading(true);
+
+      const response = await FileUploadService.processfile();
+
       if (response.ok) {
         const result = await response.json();
         console.log("Success:", result);
@@ -415,7 +410,9 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                 <div>
                   <button
                     className="btn btn-danger btn-sm upload"
-                    disabled={!currentFiles || currentFiles.length === 0 || loading}// Disable button when loading
+                    disabled={
+                      !currentFiles || currentFiles.length === 0 || loading
+                    } // Disable button when loading
                     onClick={upload}
                     style={{ marginLeft: "70px" }}
                   >

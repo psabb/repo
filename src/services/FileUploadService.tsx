@@ -22,17 +22,6 @@ const upload = (
     });
 };
 
-const processFile = async (): Promise<any> => {
-  try {
-    // Send a request to trigger the file processing on the server
-    const response = await http.get("/processfile");
-    return response.data;
-  } catch (error: any) {
-    console.error("Error processing file:", error.message);
-    throw error;
-  }
-};
-
 const getFiles = async (): Promise<any> => {
   try {
     const response = await http.get("/files");
@@ -95,6 +84,20 @@ const legalExcel = async (): Promise<any> => {
   }
 };
 
+const processfile = async (): Promise<any> => {
+  try {
+    // Make a GET request to the "/generate_legal_excel" endpoint
+    const response = await http.get("/processfile");
+
+    // Return the JSON data from the response
+    return response.data;
+  } catch (error: any) {
+    // Handle errors that may occur during the request
+    console.error("Error downloading Excel file:", error);
+    throw error; // Re-throw the error to be caught by the calling function
+  }
+};
+
 const clearConfig = async (): Promise<any> => {
   try {
     // Make a GET request to the "/generate_legal_excel" endpoint
@@ -108,7 +111,7 @@ const clearConfig = async (): Promise<any> => {
 
 const FileUploadService = {
   upload,
-  processFile,
+  processfile,
   getFiles,
   riskAnalysis,
   getRiskAnalysisResults,
