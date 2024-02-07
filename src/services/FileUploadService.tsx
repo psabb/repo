@@ -25,7 +25,7 @@ const upload = (
 const processFile = async (): Promise<any> => {
   try {
     // Send a request to trigger the file processing on the server
-    const response = await http.post("/processfile");
+    const response = await http.get("/processfile");
     return response.data;
   } catch (error: any) {
     console.error("Error processing file:", error.message);
@@ -114,7 +114,7 @@ const FileUploadService = {
   getRiskAnalysisResults,
   generateExcel,
   legalExcel,
-  clearConfig
+  clearConfig,
 };
 
 export default FileUploadService;
