@@ -80,7 +80,7 @@ function MySideNav() {
       toast.warning("Download is in progress...", { autoClose: false });
 
       // Perform risk analysis and get results
-      await FileUploadService.processFile();
+      await FileUploadService.processfile();
       const response = await FileUploadService.getRiskAnalysisResults();
 
       console.log("Risk Analysis Response:", response);
