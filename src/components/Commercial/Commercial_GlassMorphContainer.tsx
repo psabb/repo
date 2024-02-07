@@ -330,10 +330,22 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         const result = await response.json();
         console.log("Success:", result);
       } else {
-        console.error("Failed to trigger /processfile");
+        console.error(
+          "Failed to trigger /processfile. Status:",
+          response.status
+        );
+
+        // Optionally, handle different status codes differently
+        if (response.status === 404) {
+          console.error("Endpoint not found");
+          // Handle 404 error
+        } else {
+          // Handle other errors
+        }
       }
     } catch (error) {
       console.error("Error triggering /processfile:", error);
+      // Optionally, handle different types of errors differently
     } finally {
       setLoading(false);
     }
