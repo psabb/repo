@@ -319,18 +319,21 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       setLoading(true);
 
       const response = await FileUploadService.processfile();
+      console.log("Response:", response);
 
-      if (response.ok) {
+      if (response && response.ok) {
+        // Access properties of response
         const result = await response.json();
         console.log("Success:", result);
       } else {
+        // Handle case where response or response.ok is undefined
         console.error(
           "Failed to trigger /processfile. Status:",
-          response.status
+          response?.status || "Unknown"
         );
 
         // Optionally, handle different status codes differently
-        if (response.status === 404) {
+        if (response?.status === 404) {
           console.error("Endpoint not found");
           // Handle 404 error
         } else {
