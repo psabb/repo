@@ -195,13 +195,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
   const fetchSystemResponse = async (userMessage: string) => {
     try {
-      const response = await fetch("/process_input", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_input: userMessage }),
-      });
+      const response = await FileUploadService.fetchResponse();
 
       if (response.ok) {
         const responseData = await response.json();
