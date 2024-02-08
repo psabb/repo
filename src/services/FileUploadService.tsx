@@ -49,7 +49,10 @@ const riskAnalysis = async (): Promise<any> => {
 const fetchResponse = async (): Promise<any> => {
   try {
     // Send a POST request to the '/risk_analysis' endpoint on the server
-    const response = await http.post("/process_input");
+    const response = await http.post("/process_input",{headers: {
+      'Content-Type': 'application/json',
+    }}
+      );
 
     // Return the data received from the server
     return response.data;
