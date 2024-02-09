@@ -45,7 +45,7 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
       onSend(message);
       // Send user input to the Flask backend
       try {
-        const response = await fetch("/process_input", {
+        const response = await fetch("https://github-backend.azurewebsites.net/process_input", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
