@@ -195,7 +195,13 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
   const fetchSystemResponse = async (userMessage: string) => {
     try {
-      const response = await FileUploadService.fetchResponse();
+      const response = await fetch("/process_input", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_input: userMessage }),
+      });
 
       if (response.ok) {
         const responseData = await response.json();
@@ -273,7 +279,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       .then(() => {
         setMessage("Files uploaded successfully");
         console.log("Files uploaded successfully");
-        triggerProcessFile();
+        setTimeout(() => {       triggerProcessFile();     }, 2000);
+        // triggerProcessFile();
         setMessages([]);
         setUploadButtonClicked(true);
         return UploadService.getFiles();

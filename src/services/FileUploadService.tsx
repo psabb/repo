@@ -46,22 +46,23 @@ const riskAnalysis = async (): Promise<any> => {
   }
 };
 
-const fetchResponse = async (): Promise<any> => {
-  try {
-    // Send a POST request to the '/risk_analysis' endpoint on the server
-    const response = await http.post("/process_input",{headers: {
-      'Content-Type': 'application/json',
-    }}
-      );
+// const fetchResponse =async (userMessage: string): Promise<any> => {
+//   try {
+//     // Send a POST request to the '/risk_analysis' endpoint on the server
+//     const response = await http.post("/process_input",{headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({ user_input: userMessage }),}
+//       );
 
-    // Return the data received from the server
-    return response.data;
-  } catch (error: any) {
-    // If an error occurs during the request, log the error and rethrow it
-    console.error("Error triggering risk analysis:", error.message);
-    throw error;
-  }
-};
+//     // Return the data received from the server
+//     return response.data;
+//   } catch (error: any) {
+//     // If an error occurs during the request, log the error and rethrow it
+//     console.error("Error triggering risk analysis:", error.message);
+//     throw error;
+//   }
+// };
 
 const getRiskAnalysisResults = async (): Promise<any> => {
   try {
@@ -135,7 +136,7 @@ const FileUploadService = {
   processfile,
   getFiles,
   riskAnalysis,
-  fetchResponse,
+  // fetchResponse,
   getRiskAnalysisResults,
   generateExcel,
   legalExcel,
