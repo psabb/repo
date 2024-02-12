@@ -2,17 +2,21 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Commercial from "./components/Commercial/Commercial";
 import "./styles.css";
+import { GraphData } from "./components/Commercial/GraphData";
+import { withAuth } from "./msal/MsalAuthProvider";
 
-const App: React.FC = () => {
+// Use ":" instead of "=" for type annotation
+const RootApp: React.FC = (props) => {
   return (
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<Commercial />} />
+          <Route path="/" element={<Commercial {...props} />} />
+          <Route path="/graph-data" element={<GraphData />} />
         </Routes>
       </Router>
     </>
   );
 };
 
-export default App;
+export const App = withAuth(RootApp); // Corrected: Pass RootApp instead of App
