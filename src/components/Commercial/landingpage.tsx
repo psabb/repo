@@ -41,7 +41,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                     </Card.Title>
 
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      A online dediacted portal for search ABB related
+                      A online dedicated portal for search ABB related
                       Documents, which will be easily available for downloads
                       either in MP4 or PDF formats .
                     </Card.Subtitle>
