@@ -19,6 +19,7 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import ReactDropdown from "react-beautiful-dropdown";
 import optionsMap, { OptionsMap, Question } from "./optionsData";
+import { Example } from "./MultiToggle";
 
 interface GlassMorphContainerProps {
   children: React.ReactNode;
@@ -195,13 +196,16 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
   const fetchSystemResponse = async (userMessage: string) => {
     try {
-      const response = await fetch("https://github-backend.azurewebsites.net/process_input", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_input: userMessage }),
-      });
+      const response = await fetch(
+        "https://github-backend.azurewebsites.net/process_input",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_input: userMessage }),
+        }
+      );
 
       if (response.ok) {
         const responseData = await response.json();
@@ -279,7 +283,9 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       .then(() => {
         setMessage("Files uploaded successfully");
         console.log("Files uploaded successfully");
-        setTimeout(() => {       triggerProcessFile();     }, 2000);
+        setTimeout(() => {
+          triggerProcessFile();
+        }, 2000);
         // triggerProcessFile();
         setMessages([]);
         setUploadButtonClicked(true);
@@ -399,8 +405,11 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
           <div className="greeting">
             <p>How Can I Help You Today ?</p>
           </div>
+
+          <Example />
+
           <div className="glass-morph-insidecontainer">
-            <p>Upload Your Document :</p>
+            <p>Upload Your Document (.pdf, .docx formats only) :</p>
             <div>
               <div className="row">
                 <div className="col-8">
@@ -500,6 +509,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                 </div>
               )}
             </div>
+
             {uploadButtonClicked && (
               <div>
                 <input

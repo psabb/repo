@@ -37,7 +37,7 @@
 /* Media query for large screens */
 @media only screen and (min-width: 1200px) {
   .logo-image {
-    width: 60%; /* Set width as a percentage */
+    width: 30%; /* Set width as a percentage */
     height: 60%; /* Maintain aspect ratio */
     margin-left: 5rem; /* Adjust the margin as needed */
   }
