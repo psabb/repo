@@ -1,0 +1,60 @@
+/* GlassMorphContainer.css */
+.glass-morph-container1 {
+  background: #f2f2f2;
+  border-radius: 10px;
+  border: 1px solid #aca9a9;
+  overflow-y: auto;
+  width: 90%;
+  height: 160%;
+  padding: 20px;
+  margin: auto; /* Center the container */
+  margin-left: 5%;
+  margin-top: 1%;
+}
+
+/* GlassMorphContainer.css */
+.glass-morph-wrapper1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh; /* Set your preferred height */
+}
+
+.glass-morph-container1::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+.glass-morph-container1::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.greeting3 {
+  font-size: x-large;
+  font-weight: bold;
+  margin: auto;
+  padding-bottom: 10%;
+}
+.greeting2 {
+  font-size: xx-large;
+  font-weight: bold;
+  margin-top: 2%;
+}
+
+.logo-img {
+  margin-top: 3%;
+  width: 110px;
+}
+
+.card:hover {
+  transform: scale(1.05); /* You can adjust the scaling factor as needed */
+  transition: transform 0.3s ease; /* Add a smooth transition for a better visual effect */
+}
+
+.card-body {
+  margin-bottom: 10px; /* Adjust the value as needed for the desired space */
+}
+
+.card-link {
+  text-decoration: none; /* Remove underline */
+  color: black; /* Use the default text color */
+}
