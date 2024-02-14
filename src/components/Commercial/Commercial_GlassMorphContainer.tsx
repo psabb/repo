@@ -49,14 +49,19 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [selectedRadioButton, setSelectedRadioButton] = useState("option1");
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number>(2);
 
   const currentOptions: Question[] =
-    optionsMap[selectedRadioButton as keyof typeof optionsMap];
+    optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
 
   const inputHandler = (val: string) => {
     setSelectedOption(val);
     handleMessageSend(val);
     setSelectedOption("");
+  };
+
+  const handleCategorySelect = (categoryValue: number) => {
+    setSelectedCategory(categoryValue);
   };
 
   const renderSystemResponse = (response: string | React.ReactNode) => {
@@ -406,7 +411,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
             <p>How Can I Help You Today ?</p>
           </div>
 
-          <Example />
+          <Example onCategorySelect={handleCategorySelect} />
 
           <div className="glass-morph-insidecontainer">
             <p>Upload Your Document (.pdf, .docx formats only) :</p>
@@ -512,38 +517,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
             {uploadButtonClicked && (
               <div>
-                <input
-                  type="radio"
-                  name="option"
-                  value="option2"
-                  onChange={() => setSelectedRadioButton("option2")}
-                />{" "}
-                Commercial <span style={{ marginLeft: "10px" }} />
-                <input
-                  type="radio"
-                  name="option"
-                  value="option3"
-                  onChange={() => setSelectedRadioButton("option3")}
-                />{" "}
-                Technical <span style={{ marginLeft: "10px" }} />
-                <input
-                  type="radio"
-                  name="option"
-                  value="option4"
-                  onChange={() => setSelectedRadioButton("option4")}
-                />{" "}
-                Legal <span style={{ marginLeft: "10px" }} />
-                <span style={{ marginLeft: "10px" }} />
-                <input
-                  type="radio"
-                  name="option"
-                  value="option1"
-                  style={{ color: "red" }}
-                  defaultChecked
-                  onChange={() => setSelectedRadioButton("option1")}
-                />
-                Others
-                <span style={{ marginLeft: "10px" }} />
                 <ReactDropdown
                   value={selectedOption}
                   options={currentOptions}
