@@ -343,7 +343,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       setProcessing(true);
 
       const response = await FileUploadService.processfile();
-      console.log("Response:", response.data);
+      console.log("Response:", response);
 
       if (response && response.success) {
         // Access properties of response
