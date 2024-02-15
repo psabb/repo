@@ -43,6 +43,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [message, setMessage] = useState<string>("");
   const [fileInfos, setFileInfos] = useState<IFile[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [processing, setProcessing] = useState<boolean>(false);
   const [showCheckIcon, setShowCheckIcon] = useState(false);
   const [uploadButtonClicked, setUploadButtonClicked] =
     useState<boolean>(false);
@@ -159,7 +160,13 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
       if (userMessage.toLowerCase() === "upload" && currentFile) {
         await FileUploadService.upload(currentFile, (event: any) => {
-          setProgress(Math.round((100 * event.loaded) / event.total));
+          console.log("Loaded:", event.loaded);
+          console.log("Total:", event.total);
+          const calculatedProgress = Math.round(
+            (100 * event.loaded) / event.total
+          );
+          console.log("Calculated Progress:", calculatedProgress);
+          setProgress(calculatedProgress);
         });
       }
 
@@ -286,12 +293,11 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
     Promise.all(uploadPromises)
       .then(() => {
-        setMessage("Files uploaded successfully");
-        console.log("Files uploaded successfully");
         setTimeout(() => {
           triggerProcessFile();
         }, 2000);
-        // triggerProcessFile();
+        setMessage("Files uploaded successfully");
+        console.log("Files uploaded successfully");
         setMessages([]);
         setUploadButtonClicked(true);
         return UploadService.getFiles();
@@ -334,7 +340,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const triggerProcessFile = async () => {
     try {
       console.log("Triggering /processfile...");
-      setLoading(true);
+      setProcessing(true);
 
       const response = await FileUploadService.processfile();
       console.log("Response:", response);
@@ -362,7 +368,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       console.error("Error triggering /processfile:", error);
       // Optionally, handle different types of errors differently
     } finally {
-      setLoading(false);
+      setProcessing(false);
     }
   };
 
@@ -478,7 +484,34 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                     className="spinner"
                     style={{ marginRight: "10px" }}
                   ></div>
-                  <span className="process">Processing</span>
+                  <span className="process">Uploading File</span>
+                  <div className="dots">
+                    {Array.from({ length: 3 }, (_, index) => (
+                      <span
+                        className="running"
+                        key={index}
+                        style={{ animationDelay: `${index * 0.5}s` }}
+                      >
+                        {"."}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {processing && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "15px",
+                  }}
+                >
+                  <div
+                    className="spinner"
+                    style={{ marginRight: "10px" }}
+                  ></div>
+                  <span className="process">Processing File</span>
                   <div className="dots">
                     {Array.from({ length: 3 }, (_, index) => (
                       <span
