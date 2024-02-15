@@ -345,7 +345,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       const response = await FileUploadService.processfile();
       console.log("Response:", response);
 
-      if (response && response.ok) {
+      if (response && response.success) {
         // Access properties of response
         const result = await response.json();
         console.log("Success:", result);
