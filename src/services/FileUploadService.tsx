@@ -105,7 +105,7 @@ const legalExcel = async (): Promise<any> => {
 const processfile = async (): Promise<any> => {
   try {
     const response = await http.get("/processfile");
-    return response;
+    return response.data;
   } catch (error: any) {
     if (error.response) {
       console.error(
