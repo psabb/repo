@@ -10,7 +10,7 @@ const upload = (
 
   // Send the POST request with the appropriate headers and progress callback
   return http
-    .post("/summarizer/upload", formData, {
+    .post("/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -24,7 +24,7 @@ const upload = (
 
 const getFiles = async (): Promise<any> => {
   try {
-    const response = await http.get("/summarizer/files");
+    const response = await http.get("/files");
     return response.data;
   } catch (error: any) {
     console.error("Error fetching files:", error.message);
@@ -35,7 +35,7 @@ const getFiles = async (): Promise<any> => {
 const riskAnalysis = async (): Promise<any> => {
   try {
     // Send a POST request to the '/risk_analysis' endpoint on the server
-    const response = await http.post("/summarizer/risk_analysis");
+    const response = await http.post("/risk_analysis");
 
     // Return the data received from the server
     return response.data;
@@ -66,7 +66,7 @@ const riskAnalysis = async (): Promise<any> => {
 
 const getRiskAnalysisResults = async (): Promise<any> => {
   try {
-    const response = await http.get("/summarizer/risk_analysis");
+    const response = await http.get("/risk_analysis");
     return response.data;
   } catch (error: any) {
     console.error("Error fetching risk analysis results:", error.message);
@@ -77,7 +77,7 @@ const getRiskAnalysisResults = async (): Promise<any> => {
 const generateExcel = async (): Promise<any> => {
   try {
     // Make a GET request to the "/generate_excel" endpoint
-    const response = await http.get("/summarizer/generate_excel");
+    const response = await http.get("/generate_excel");
 
     // Return the JSON data from the response
     return response;
@@ -91,7 +91,7 @@ const generateExcel = async (): Promise<any> => {
 const legalExcel = async (): Promise<any> => {
   try {
     // Make a GET request to the "/generate_legal_excel" endpoint
-    const response = await http.get("/summarizer/generate_legal_excel");
+    const response = await http.get("/generate_legal_excel");
 
     // Return the JSON data from the response
     return response.data;
@@ -104,7 +104,7 @@ const legalExcel = async (): Promise<any> => {
 
 const processfile = async (): Promise<any> => {
   try {
-    const response = await http.get("/summarizer/processfile");
+    const response = await http.get("/processfile");
     return response;
   } catch (error: any) {
     if (error.response) {
@@ -124,7 +124,7 @@ const processfile = async (): Promise<any> => {
 const clearConfig = async (): Promise<any> => {
   try {
     // Make a GET request to the "/generate_legal_excel" endpoint
-    const response = await http.post("/summarizer/clear_config");
+    const response = await http.post("/clear_config");
   } catch (error: any) {
     // Handle errors that may occur during the request
     console.error("error clearing console:", error);
