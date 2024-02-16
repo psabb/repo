@@ -6,7 +6,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import "./Commercial_TextboxWithButton.css";
 
 interface TextBoxWithButtonProps {
-  onSend: (message: string) => void;
+  onSend: (message: string, storedVectorStoreName: string | null) => void;
 }
 
 interface SpeechRecognitionEvent extends Event {
@@ -32,6 +32,7 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
   const [message, setMessage] = useState<string>("");
   const [listening, setListening] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const storedVectorStoreName: string | null = null;
 
   useEffect(() => {
     if (listening) {
@@ -40,18 +41,29 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listening]);
 
-  const handleSend = async () => {
+  const handleSend = async (
+    message: string,
+    storedVectorStoreName: string | null
+  ) => {
     if (message.trim() !== "") {
-      onSend(message);
+      onSend(message, storedVectorStoreName);
       // Send user input to the Flask backend
       try {
-        const response = await fetch("https://github-backend.azurewebsites.net/process_input", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ user_input: message }),
-        });
+        const requestBody = {
+          user_input: message,
+          vector_store_name: storedVectorStoreName,
+        };
+
+        const response = await fetch(
+          "https://github-backend.azurewebsites.net/process_input",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
 
         if (response.ok) {
           const responseData = await response.json();
@@ -106,7 +118,7 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      handleSend();
+      handleSend(message, storedVectorStoreName);
     }
   };
   return (
@@ -151,7 +163,10 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
               </InputAdornment>
               <InputAdornment position="end">
                 <IconButton
-                  onClick={handleSend}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleSend(message, storedVectorStoreName);
+                  }}
                   edge="end"
                   className="iconButton"
                 >

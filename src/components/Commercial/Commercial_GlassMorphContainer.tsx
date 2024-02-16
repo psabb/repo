@@ -48,16 +48,17 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [uploadButtonClicked, setUploadButtonClicked] =
     useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
-  const [selectedRadioButton, setSelectedRadioButton] = useState("option1");
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number>(2);
+  const [storedVectorStoreName, setStoredVectorStoreName] = useState(null);
 
   const currentOptions: Question[] =
     optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
 
   const inputHandler = (val: string) => {
     setSelectedOption(val);
-    handleMessageSend(val);
+    const storedVectorStoreName: string | null = null;
+    handleMessageSend(val, storedVectorStoreName);
     setSelectedOption("");
   };
 
@@ -130,7 +131,10 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     document.body.removeChild(textField);
   };
 
-  const handleMessageSend = async (userMessage: string) => {
+  const handleMessageSend = async (
+    userMessage: string,
+    storedVectorStoreName: string | null
+  ) => {
     try {
       if (!userMessage || userMessage.trim() === "") {
         return;
@@ -182,6 +186,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       // Fetch system response
       const systemResponse = await fetchSystemResponse(userMessage);
 
+      console.log("System Response:", systemResponse);
+
       // Hide loading spinner for user message
       setMessages((prevMessages) => {
         const index = prevMessages.findIndex(
@@ -206,8 +212,47 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     }
   };
 
+  const triggerProcessFile = async () => {
+    try {
+      console.log("Triggering /processfile...");
+      setProcessing(true);
+
+      const response = await FileUploadService.processfile();
+      console.log("Response:", response);
+
+      if (response && response.status === 200) {
+        const vectorStoreName = response.data.vector_store_names;
+        console.log("Vector Store Name:", vectorStoreName);
+        setStoredVectorStoreName(vectorStoreName);
+        console.log("Success:", response);
+      } else {
+        console.error(
+          "Failed to trigger /processfile. Status:",
+          response?.status || "Unknown"
+        );
+
+        if (response?.status === 404) {
+          console.error("Endpoint not found");
+        } else {
+          // Handle other errors
+        }
+      }
+    } catch (error) {
+      console.error("Error triggering /processfile:", error);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const fetchSystemResponse = async (userMessage: string) => {
     try {
+      const requestBody = {
+        user_input: userMessage,
+        vector_store_name: storedVectorStoreName,
+      };
+
+      console.log(requestBody);
+
       const response = await fetch(
         "https://github-backend.azurewebsites.net/process_input",
         {
@@ -215,17 +260,17 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ user_input: userMessage }),
+          body: JSON.stringify(requestBody),
         }
       );
 
       if (response.ok) {
         const responseData = await response.json();
         return responseData.generated_response;
-      } else {
-        console.error("Failed to fetch system response");
-        return "Error: Unable to fetch system response";
       }
+
+      console.error("Failed to fetch system response");
+      return "Error: Unable to fetch system response";
     } catch (error) {
       console.error("Error fetching system response:", error);
       return "Error: Unable to fetch system response";
@@ -241,19 +286,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await UploadService.getFiles();
-        setFileInfos(response.data);
-      } catch (error) {
-        console.error("Error fetching files:", error);
-      }
-    };
-
-    fetchFiles();
-  }, []);
 
   const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target;
@@ -300,10 +332,10 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         console.log("Files uploaded successfully");
         setMessages([]);
         setUploadButtonClicked(true);
-        return UploadService.getFiles();
+        // return UploadService.getFiles();
       })
       .then((files) => {
-        setFileInfos(files.data);
+        // setFileInfos(files.data);
         setTimeout(() => {
           clearMessage();
         }, 15000);
@@ -337,41 +369,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       });
   };
 
-  const triggerProcessFile = async () => {
-    try {
-      console.log("Triggering /processfile...");
-      setProcessing(true);
-
-      const response = await FileUploadService.processfile();
-      console.log("Response:", response);
-
-      if (response && response.success) {
-        // Access properties of response
-        // const result = await response.json();
-        console.log("Success:", response);
-      } else {
-        // Handle case where response or response.ok is undefined
-        console.error(
-          "Failed to trigger /processfile. Status:",
-          response?.status || "Unknown"
-        );
-
-        // Optionally, handle different status codes differently
-        if (response?.status === 404) {
-          console.error("Endpoint not found");
-          // Handle 404 error
-        } else {
-          // Handle other errors
-        }
-      }
-    } catch (error) {
-      console.error("Error triggering /processfile:", error);
-      // Optionally, handle different types of errors differently
-    } finally {
-      setProcessing(false);
-    }
-  };
-
   const deleteFile = async () => {
     if (currentFile) {
       try {
@@ -379,8 +376,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         setMessage("File deleted successfully");
 
         // Update fileInfos after deletion
-        const files = await UploadService.getFiles();
-        setFileInfos(files.data);
+        // const files = await UploadService.getFiles();
+        // setFileInfos(files.data);
         setTimeout(() => {
           clearMessage();
         }, 5000);

@@ -22,15 +22,15 @@ const upload = (
     });
 };
 
-const getFiles = async (): Promise<any> => {
-  try {
-    const response = await http.get("/files");
-    return response.data;
-  } catch (error: any) {
-    console.error("Error fetching files:", error.message);
-    throw error;
-  }
-};
+// const getFiles = async (): Promise<any> => {
+//   try {
+//     const response = await http.get("/files");
+//     return response.data;
+//   } catch (error: any) {
+//     console.error("Error fetching files:", error.message);
+//     throw error;
+//   }
+// };
 
 const riskAnalysis = async (): Promise<any> => {
   try {
@@ -135,7 +135,7 @@ const clearConfig = async (): Promise<any> => {
 const FileUploadService = {
   upload,
   processfile,
-  getFiles,
+  // getFiles,
   riskAnalysis,
   // fetchResponse,
   getRiskAnalysisResults,
