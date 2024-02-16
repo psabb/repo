@@ -217,33 +217,40 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       console.log("Triggering /processfile...");
       setProcessing(true);
 
-      const response = await FileUploadService.processfile();
-      console.log("Response:", response);
+      const response = await fetch(
+        "https://github-backend.azurewebsites.net/processfile",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response && response.status === 200) {
-        const vectorStoreName = response.data.vector_store_names;
-        console.log("Vector Store Name:", vectorStoreName);
-        setStoredVectorStoreName(vectorStoreName);
-        console.log("Success:", response);
-      } else {
+      if (!response.ok) {
         console.error(
           "Failed to trigger /processfile. Status:",
-          response?.status || "Unknown"
+          response.status || "Unknown"
         );
 
-        if (response?.status === 404) {
+        if (response.status === 404) {
           console.error("Endpoint not found");
         } else {
-          // Handle other errors
         }
+        return;
       }
+
+      const responseData = await response.json();
+      const vectorStoreName = responseData.vector_store_names;
+      console.log("Vector Store Name:", vectorStoreName);
+      setStoredVectorStoreName(vectorStoreName);
+      console.log("Success:", responseData);
     } catch (error) {
       console.error("Error triggering /processfile:", error);
     } finally {
       setProcessing(false);
     }
   };
-
   const fetchSystemResponse = async (userMessage: string) => {
     try {
       const requestBody = {
@@ -332,7 +339,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         console.log("Files uploaded successfully");
         setMessages([]);
         setUploadButtonClicked(true);
-        // return UploadService.getFiles();
+        return UploadService.getFiles();
       })
       .then((files) => {
         // setFileInfos(files.data);
@@ -376,8 +383,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         setMessage("File deleted successfully");
 
         // Update fileInfos after deletion
-        // const files = await UploadService.getFiles();
-        // setFileInfos(files.data);
+        const files = await UploadService.getFiles();
+        setFileInfos(files.data);
         setTimeout(() => {
           clearMessage();
         }, 5000);

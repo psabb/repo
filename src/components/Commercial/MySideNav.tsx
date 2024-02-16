@@ -68,72 +68,72 @@ function MySideNav() {
     }
   };
 
-  const handleCommercialDownload = async () => {
-    try {
-      if (isRiskAnalysisInProgress) {
-        // If risk analysis is already in progress, do nothing
-        return;
-      }
-      setRiskAnalysisInProgress(true);
+  // const handleCommercialDownload = async () => {
+  //   try {
+  //     if (isRiskAnalysisInProgress) {
+  //       // If risk analysis is already in progress, do nothing
+  //       return;
+  //     }
+  //     setRiskAnalysisInProgress(true);
 
-      // Show a warning toast while the download is in progress
-      toast.warning("Download is in progress...", { autoClose: false });
+  //     // Show a warning toast while the download is in progress
+  //     toast.warning("Download is in progress...", { autoClose: false });
 
-      // Perform risk analysis and get results
-      await FileUploadService.processfile();
-      const response = await FileUploadService.getRiskAnalysisResults();
+  //     // Perform risk analysis and get results
+  //     await FileUploadService.processfile();
+  //     const response = await FileUploadService.getRiskAnalysisResults();
 
-      console.log("Risk Analysis Response:", response);
+  //     console.log("Risk Analysis Response:", response);
 
-      if (response.success) {
-        const { results, score, score_message, percentage_ok } = response;
+  //     if (response.success) {
+  //       const { results, score, score_message, percentage_ok } = response;
 
-        // Update riskResults state
-        setRiskResults({ results, score, score_message, percentage_ok });
+  //       // Update riskResults state
+  //       setRiskResults({ results, score, score_message, percentage_ok });
 
-        // Check if risk results are available
-        if (results && results.length > 0) {
-          // Convert risk results to Excel format
-          const excelData = convertRiskResultsToExcel({
-            results,
-            score,
-            score_message,
-            percentage_ok,
-          });
+  //       // Check if risk results are available
+  //       if (results && results.length > 0) {
+  //         // Convert risk results to Excel format
+  //         const excelData = convertRiskResultsToExcel({
+  //           results,
+  //           score,
+  //           score_message,
+  //           percentage_ok,
+  //         });
 
-          // Create a Blob with the Excel data
-          const blob = new Blob([excelData], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          });
+  //         // Create a Blob with the Excel data
+  //         const blob = new Blob([excelData], {
+  //           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //         });
 
-          // Create a link element to trigger the download
-          const link = document.createElement("a");
-          link.href = window.URL.createObjectURL(blob);
-          link.download = "Commericial_risk_analysis_results.xlsx";
+  //         // Create a link element to trigger the download
+  //         const link = document.createElement("a");
+  //         link.href = window.URL.createObjectURL(blob);
+  //         link.download = "Commericial_risk_analysis_results.xlsx";
 
-          // Append the link to the body and trigger the click event
-          document.body.appendChild(link);
-          link.click();
-        } else {
-          // Handle the case where risk results are not available
-          alert("No risk analysis results available for download.");
-        }
-      } else {
-        console.error("Error triggering risk analysis:", response.message);
-        // Handle error: Display a notification or alert to the user
-      }
-      // Close the warning toast once the download is complete
-      toast.dismiss();
-      // Show a success toast after a successful download
-      toast.success("Download successful!");
-    } catch (error) {
-      console.error("Error:", (error as Error).message);
-      // Handle error: Display a notification or alert to the user
-    } finally {
-      // Reset loading state
-      setRiskAnalysisInProgress(false);
-    }
-  };
+  //         // Append the link to the body and trigger the click event
+  //         document.body.appendChild(link);
+  //         link.click();
+  //       } else {
+  //         // Handle the case where risk results are not available
+  //         alert("No risk analysis results available for download.");
+  //       }
+  //     } else {
+  //       console.error("Error triggering risk analysis:", response.message);
+  //       // Handle error: Display a notification or alert to the user
+  //     }
+  //     // Close the warning toast once the download is complete
+  //     toast.dismiss();
+  //     // Show a success toast after a successful download
+  //     toast.success("Download successful!");
+  //   } catch (error) {
+  //     console.error("Error:", (error as Error).message);
+  //     // Handle error: Display a notification or alert to the user
+  //   } finally {
+  //     // Reset loading state
+  //     setRiskAnalysisInProgress(false);
+  //   }
+  // };
 
   const handleTechnicalDownload = async () => {
     try {
@@ -192,9 +192,9 @@ function MySideNav() {
               ></i>
             </NavIcon>
             <NavText>Download Center</NavText>
-            <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
+            {/* <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
               <NavText>Commercial Report</NavText>
-            </NavItem>
+            </NavItem> */}
             <NavItem eventKey="Legal" onClick={handleLegalDownload}>
               <NavText>Legal Report</NavText>
             </NavItem>
