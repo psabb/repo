@@ -164,7 +164,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       }
 
       if (userMessage.toLowerCase() === "upload" && currentFile) {
-        await FileUploadService.upload(currentFile, (event: any) => {
+        await FileUploadService.upload(currentFiles, (event: any) => {
           console.log("Loaded:", event.loaded);
           console.log("Total:", event.total);
           const calculatedProgress = Math.round(
@@ -253,12 +253,14 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       console.log("Vector Store Name:", vectorStoreName);
       setStoredVectorStoreName(vectorStoreName);
       console.log("Success:", responseData);
+      return vectorStoreName;
     } catch (error) {
       console.error("Error triggering /processfile:", error);
     } finally {
       setProcessing(false);
     }
   };
+
   const fetchSystemResponse = async (userMessage: string) => {
     try {
       const requestBody = {
@@ -325,12 +327,15 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       return;
     }
 
-    const uploadPromises: Promise<void>[] = currentFiles.map((file) => {
-      return new Promise<void>(async (resolve, reject) => {
+    const uploadPromises: Promise<void> = new Promise<void>(
+      async (resolve, reject) => {
         try {
-          const response = await UploadService.upload(file, (event: any) => {
-            setProgress(Math.round((100 * event.loaded) / event.total));
-          });
+          const response = await UploadService.upload(
+            currentFiles,
+            (event: any) => {
+              setProgress(Math.round((100 * event.loaded) / event.total));
+            }
+          );
           // Check if the response contains blob_name
           const blobName = response.data.blob_name; // Adjust this based on the actual structure of your response
           setBlobName(blobName); // Assuming you have a state variable for blobName
@@ -345,8 +350,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         } catch (error) {
           reject(error);
         }
-      });
-    });
+      }
+    );
 
     // Promise.all(uploadPromises)
     //   .then(() => {

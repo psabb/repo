@@ -1,12 +1,12 @@
 import http, { AxiosResponse, AxiosProgressEvent } from "../http-common";
 
 const upload = (
-  file: File,
+  files: File[],
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void
 ): Promise<AxiosResponse<any>> => {
   // Create FormData and append the file
   let formData = new FormData();
-  formData.append("file", file);
+  files.map((file) => formData.append("files", file, `${file.name}`));
 
   // Send the POST request with the appropriate headers and progress callback
   return http
