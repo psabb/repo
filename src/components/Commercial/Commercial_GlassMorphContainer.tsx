@@ -51,6 +51,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number>(2);
   const [storedVectorStoreName, setStoredVectorStoreName] = useState(null);
+  const [blobName, setBlobName] = useState<string>("");
 
   const currentOptions: Question[] =
     optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
@@ -212,18 +213,25 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     }
   };
 
-  const triggerProcessFile = async () => {
+  const triggerProcessFile = async (blobName: string) => {
     try {
       console.log("Triggering /processfile...");
       setProcessing(true);
 
+      console.log(blobName);
+
+      const bodyRequest = {
+        blobName: blobName,
+      };
+
       const response = await fetch(
-        "https://github-backend.azurewebsites.net/processfile",
+        `https://github-backend.azurewebsites.net/processfile`,
         {
-          method: "GET",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify(bodyRequest),
         }
       );
 
@@ -320,9 +328,19 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     const uploadPromises: Promise<void>[] = currentFiles.map((file) => {
       return new Promise<void>(async (resolve, reject) => {
         try {
-          await UploadService.upload(file, (event: any) => {
+          const response = await UploadService.upload(file, (event: any) => {
             setProgress(Math.round((100 * event.loaded) / event.total));
           });
+          // Check if the response contains blob_name
+          const blobName = response.data.blob_name; // Adjust this based on the actual structure of your response
+          setBlobName(blobName); // Assuming you have a state variable for blobName
+          console.log("BlobName after upload:", blobName);
+          setLoading(false);
+          await triggerProcessFile(blobName);
+          setMessage("Files uploaded successfully");
+          console.log("Files uploaded successfully");
+          setMessages([]);
+          setUploadButtonClicked(true);
           resolve();
         } catch (error) {
           reject(error);
@@ -330,50 +348,50 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       });
     });
 
-    Promise.all(uploadPromises)
-      .then(() => {
-        setTimeout(() => {
-          triggerProcessFile();
-        }, 2000);
-        setMessage("Files uploaded successfully");
-        console.log("Files uploaded successfully");
-        setMessages([]);
-        setUploadButtonClicked(true);
-        return UploadService.getFiles();
-      })
-      .then((files) => {
-        // setFileInfos(files.data);
-        setTimeout(() => {
-          clearMessage();
-        }, 15000);
-      })
-      .catch((err) => {
-        setProgress(0);
+    // Promise.all(uploadPromises)
+    //   .then(() => {
+    //     setTimeout(() => {
+    //       triggerProcessFile(blobName);
+    //     }, 2000);
+    //     setMessage("Files uploaded successfully");
+    //     console.log("Files uploaded successfully");
+    //     setMessages([]);
+    //     setUploadButtonClicked(true);
+    //     return UploadService.getFiles();
+    //   })
+    //   .then((files) => {
+    //     // setFileInfos(files.data);
+    //     setTimeout(() => {
+    //       clearMessage();
+    //     }, 15000);
+    //   })
+    //   .catch((err) => {
+    //     setProgress(0);
 
-        if (err.response && err.response.data && err.response.data.message) {
-          // Use a more descriptive error message if available
-          setMessage(err.response.data.message);
-          setTimeout(() => {
-            clearMessage();
-          }, 5000);
-        } else if (
-          err.message === "Invalid file type. Allowed types: pdf, doc, docx"
-        ) {
-          // Handle specific error for invalid file format
-          setMessage("Invalid file format. Allowed formats: PDF, DOC, DOCX");
-          setTimeout(() => {
-            clearMessage();
-          }, 5000);
-        } else {
-          setMessage("Could not upload the files!");
-          setTimeout(() => {
-            clearMessage();
-          }, 5000);
-        }
-      })
-      .finally(() => {
-        setLoading(false); // Set loading to false regardless of success or error
-      });
+    //     if (err.response && err.response.data && err.response.data.message) {
+    //       // Use a more descriptive error message if available
+    //       setMessage(err.response.data.message);
+    //       setTimeout(() => {
+    //         clearMessage();
+    //       }, 5000);
+    //     } else if (
+    //       err.message === "Invalid file type. Allowed types: pdf, doc, docx"
+    //     ) {
+    //       // Handle specific error for invalid file format
+    //       setMessage("Invalid file format. Allowed formats: PDF, DOC, DOCX");
+    //       setTimeout(() => {
+    //         clearMessage();
+    //       }, 5000);
+    //     } else {
+    //       setMessage("Could not upload the files!");
+    //       setTimeout(() => {
+    //         clearMessage();
+    //       }, 5000);
+    //     }
+    //   })
+    //   .finally(() => {
+    //     setLoading(false); // Set loading to false regardless of success or error
+    //   });
   };
 
   const deleteFile = async () => {
