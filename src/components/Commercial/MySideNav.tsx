@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import SideNav, {
   Toggle,
   NavItem,
@@ -17,17 +16,26 @@ interface MySideNavProps {
 
 function MySideNav({ storedVectorStoreName }: MySideNavProps) {
   const [isRiskAnalysisInProgress, setRiskAnalysisInProgress] = useState(false);
-  const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const reloadParam = params.get("reload");
+    const wasPageReloaded = window.performance.navigation.type === 1;
 
-    if (reloadParam === "true") {
+    if (wasPageReloaded) {
       // Display a toast notification after the page is reloaded
       toast.success("New Chat Created", { autoClose: 3000 });
     }
-  }, [location.search]);
+  }, []);
+
+  // Use handleNewChat to initiate the reload
+  const handleNewChat = () => {
+    try {
+      // Reload the page
+      window.location.reload();
+    } catch (error: any) {
+      // Handle errors if needed
+      console.error("Error:", error.message);
+    }
+  };
 
   const handleCommercialDownload = async () => {
     try {
@@ -116,16 +124,6 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       toast.success("Download successful!");
     } catch (error: any) {
       // Handle errors
-      console.error("Error:", error.message);
-    }
-  };
-
-  const handleNewChat = () => {
-    try {
-      // Reload the page with a query parameter indicating the reload
-      window.location.href = `${window.location.href}?reload=true`;
-    } catch (error: any) {
-      // Handle errors if needed
       console.error("Error:", error.message);
     }
   };
