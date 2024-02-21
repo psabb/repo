@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import SideNav, {
   Toggle,
   NavItem,
@@ -16,6 +17,17 @@ interface MySideNavProps {
 
 function MySideNav({ storedVectorStoreName }: MySideNavProps) {
   const [isRiskAnalysisInProgress, setRiskAnalysisInProgress] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const reloadParam = params.get("reload");
+
+    if (reloadParam === "true") {
+      // Display a toast notification after the page is reloaded
+      toast.success("New Chat Created", { autoClose: 3000 });
+    }
+  }, [location.search]);
 
   const handleCommercialDownload = async () => {
     try {
@@ -25,29 +37,6 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       const response = await FileUploadService.commercialExcel(
         storedVectorStoreName || ""
       );
-
-      console.log("response received :", response.data);
-
-      // Extract the blob name from the response
-      const receivedBlobName = response.data.blob_name;
-
-      // Log the blob name for verification
-      console.log("blobName:", receivedBlobName);
-
-      // Construct the download URL or use it in any way you need
-      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
-
-      // Use the fetch API to download the file
-      const responseBlob = await fetch(downloadUrl);
-      const blobData = await responseBlob.blob();
-
-      // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `Commercial_Report_${new Date().toISOString()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
 
       console.log("response received :", response);
       // Close the warning toast once the download is complete
@@ -75,29 +64,6 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
         storedVectorStoreName || ""
       );
 
-      console.log("response received :", response.data);
-
-      // Extract the blob name from the response
-      const receivedBlobName = response.data.blob_name;
-
-      // Log the blob name for verification
-      console.log("blobName:", receivedBlobName);
-
-      // Construct the download URL or use it in any way you need
-      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
-
-      // Use the fetch API to download the file
-      const responseBlob = await fetch(downloadUrl);
-      const blobData = await responseBlob.blob();
-
-      // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `Technical_Report_${new Date().toISOString()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
       console.log("response received :", response);
       // Close the warning toast once the download is complete
       toast.dismiss();
@@ -106,6 +72,8 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
+    } finally {
+      setRiskAnalysisInProgress(false);
     }
   };
 
@@ -152,11 +120,31 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     }
   };
 
+  const handleNewChat = () => {
+    try {
+      // Reload the page with a query parameter indicating the reload
+      window.location.href = `${window.location.href}?reload=true`;
+    } catch (error: any) {
+      // Handle errors if needed
+      console.error("Error:", error.message);
+    }
+  };
+
   return (
     <>
       <SideNav onSelect={(selected: string) => {}}>
         <Toggle />
-        <SideNav.Nav defaultSelected="downloads">
+
+        <SideNav.Nav>
+          <NavItem eventKey="New Chat" onClick={handleNewChat}>
+            <NavIcon>
+              <i className="fa-solid fa-plus" style={{ fontSize: "1.5em" }}></i>
+            </NavIcon>
+            <NavText>New Chat</NavText>
+          </NavItem>
+        </SideNav.Nav>
+
+        <SideNav.Nav>
           <NavItem eventKey="downloads">
             <NavIcon>
               <i
