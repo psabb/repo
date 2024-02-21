@@ -55,7 +55,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
             <div className="col-md-6 mb-3">
               {/* Second Card */}
               <Card style={{ width: "60%" }}>
-                <Link to="/summarizer" className="card-link">
+                <Link to="/commercial" className="card-link">
                   <Card.Img
                     variant="top"
                     src="https://resources.news.e.abb.com/images/2024/1/31/0/QUARTERLY_RESULTS.jpg"
