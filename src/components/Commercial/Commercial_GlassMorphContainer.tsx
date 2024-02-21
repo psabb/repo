@@ -25,6 +25,7 @@ interface GlassMorphContainerProps {
   children: React.ReactNode;
   isSideMenuOpen: boolean;
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
+  setstoredVectorStoreName: Dispatch<SetStateAction<string | null>>;
 }
 
 interface Message {
@@ -36,6 +37,7 @@ interface Message {
 const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   children,
   setMenuOpen,
+  setstoredVectorStoreName,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
@@ -50,7 +52,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number>(2);
-  const [storedVectorStoreName, setStoredVectorStoreName] = useState(null);
+  const [localstoredVectorStoreName, setLocalStoredVectorStoreName] =
+    useState(null);
   const [blobName, setBlobName] = useState<string>("");
 
   const currentOptions: Question[] =
@@ -218,8 +221,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       console.log("Triggering /processfile...");
       setProcessing(true);
 
-      console.log(blobName);
-
       const bodyRequest = {
         blobName: blobName,
       };
@@ -251,7 +252,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       const responseData = await response.json();
       const vectorStoreName = responseData.vector_store_names;
       console.log("Vector Store Name:", vectorStoreName);
-      setStoredVectorStoreName(vectorStoreName);
+      setLocalStoredVectorStoreName(vectorStoreName);
+      setstoredVectorStoreName(vectorStoreName);
       console.log("Success:", responseData);
       return vectorStoreName;
     } catch (error) {
@@ -265,7 +267,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     try {
       const requestBody = {
         user_input: userMessage,
-        vector_store_name: storedVectorStoreName,
+        vector_store_name: localstoredVectorStoreName,
       };
 
       console.log(requestBody);
@@ -327,6 +329,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const uploadPromises: Promise<void> = new Promise<void>(
       async (resolve, reject) => {
         try {
@@ -346,57 +349,15 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
           console.log("Files uploaded successfully");
           setMessages([]);
           setUploadButtonClicked(true);
+          setTimeout(() => {
+            clearMessage();
+          }, 5000);
           resolve();
         } catch (error) {
           reject(error);
         }
       }
     );
-
-    // Promise.all(uploadPromises)
-    //   .then(() => {
-    //     setTimeout(() => {
-    //       triggerProcessFile(blobName);
-    //     }, 2000);
-    //     setMessage("Files uploaded successfully");
-    //     console.log("Files uploaded successfully");
-    //     setMessages([]);
-    //     setUploadButtonClicked(true);
-    //     return UploadService.getFiles();
-    //   })
-    //   .then((files) => {
-    //     // setFileInfos(files.data);
-    //     setTimeout(() => {
-    //       clearMessage();
-    //     }, 15000);
-    //   })
-    //   .catch((err) => {
-    //     setProgress(0);
-
-    //     if (err.response && err.response.data && err.response.data.message) {
-    //       // Use a more descriptive error message if available
-    //       setMessage(err.response.data.message);
-    //       setTimeout(() => {
-    //         clearMessage();
-    //       }, 5000);
-    //     } else if (
-    //       err.message === "Invalid file type. Allowed types: pdf, doc, docx"
-    //     ) {
-    //       // Handle specific error for invalid file format
-    //       setMessage("Invalid file format. Allowed formats: PDF, DOC, DOCX");
-    //       setTimeout(() => {
-    //         clearMessage();
-    //       }, 5000);
-    //     } else {
-    //       setMessage("Could not upload the files!");
-    //       setTimeout(() => {
-    //         clearMessage();
-    //       }, 5000);
-    //     }
-    //   })
-    //   .finally(() => {
-    //     setLoading(false); // Set loading to false regardless of success or error
-    //   });
   };
 
   const deleteFile = async () => {

@@ -10,11 +10,14 @@ interface NavbarContainerProps {}
 
 const NavbarContainer: React.FC<NavbarContainerProps> = (props) => {
   const [isSideMenuOpen, setSideMenuOpen] = useState(false);
+  const [storedVectorStoreName, setStoredVectorStoreName] = useState<
+    string | null
+  >(null);
 
   return (
     <>
       <div className="navbar-container">
-        <MySideNav />
+        <MySideNav storedVectorStoreName={storedVectorStoreName} />
         <Link to="/">
           <div className="logo-container">
             <img src={localGif} alt="Local GIF" className="logo-image" />
@@ -25,6 +28,7 @@ const NavbarContainer: React.FC<NavbarContainerProps> = (props) => {
         children={undefined}
         isSideMenuOpen={isSideMenuOpen}
         setMenuOpen={setSideMenuOpen}
+        setstoredVectorStoreName={setStoredVectorStoreName}
       />
     </>
   );

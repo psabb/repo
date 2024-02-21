@@ -32,92 +32,91 @@ const getFiles = async (): Promise<any> => {
   }
 };
 
-const riskAnalysis = async (): Promise<any> => {
+const commercialExcel = async (storedVectorStoreName: string): Promise<any> => {
   try {
-    // Send a POST request to the '/risk_analysis' endpoint on the server
-    const response = await http.post("/risk_analysis");
-
-    // Return the data received from the server
-    return response.data;
-  } catch (error: any) {
-    // If an error occurs during the request, log the error and rethrow it
-    console.error("Error triggering risk analysis:", error.message);
-    throw error;
-  }
-};
-
-// const fetchResponse =async (userMessage: string): Promise<any> => {
-//   try {
-//     // Send a POST request to the '/risk_analysis' endpoint on the server
-//     const response = await http.post("/process_input",{headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({ user_input: userMessage }),}
-//       );
-
-//     // Return the data received from the server
-//     return response.data;
-//   } catch (error: any) {
-//     // If an error occurs during the request, log the error and rethrow it
-//     console.error("Error triggering risk analysis:", error.message);
-//     throw error;
-//   }
-// };
-
-const getRiskAnalysisResults = async (): Promise<any> => {
-  try {
-    const response = await http.get("/risk_analysis");
-    return response.data;
-  } catch (error: any) {
-    console.error("Error fetching risk analysis results:", error.message);
-    throw error;
-  }
-};
-
-const generateExcel = async (): Promise<any> => {
-  try {
-    // Make a GET request to the "/generate_excel" endpoint
-    const response = await http.get("/generate_excel");
-
+    /// Make a request to the server with the vectorStoreName
+    const response = await fetch(
+      "https://github-backend.azurewebsites.net/commercialExcel",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vectorStoreName: storedVectorStoreName,
+        }),
+      }
+    );
     // Return the JSON data from the response
     return response;
   } catch (error: any) {
     // Handle errors that may occur during the request
-    console.error("Error downloading Excel file:", error);
+    console.error("Error downloading Commercial Excel file:", error);
     throw error; // Re-throw the error to be caught by the calling function
   }
 };
 
-const legalExcel = async (): Promise<any> => {
+const technicalExcel = async (storedVectorStoreName: string): Promise<any> => {
   try {
-    // Make a GET request to the "/generate_legal_excel" endpoint
-    const response = await http.get("/generate_legal_excel");
-
+    /// Make a request to the server with the vectorStoreName
+    const response = await fetch(
+      "https://github-backend.azurewebsites.net/technicalExcel",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vectorStoreName: storedVectorStoreName,
+        }),
+      }
+    );
     // Return the JSON data from the response
-    return response.data;
-  } catch (error: any) {
-    // Handle errors that may occur during the request
-    console.error("Error downloading Excel file:", error);
-    throw error; // Re-throw the error to be caught by the calling function
-  }
-};
-
-const processfile = async (blobName: string): Promise<any> => {
-  try {
-    const response = await http.get(`/processfile/${blobName}`);
     return response;
   } catch (error: any) {
-    if (error.response) {
-      console.error(
-        "Server responded with error status:",
-        error.response.status
-      );
-    } else if (error.request) {
-      console.error("No response received from the server");
-    } else {
-      console.error("Error setting up the request:", error.message);
+    // Handle errors that may occur during the request
+    console.error("Error downloading Technical Excel file:", error);
+    throw error; // Re-throw the error to be caught by the calling function
+  }
+};
+
+const legalExcel = async (storedVectorStoreName: string): Promise<any> => {
+  try {
+    /// Make a request to the server with the vectorStoreName
+    const response = await fetch(
+      "https://github-backend.azurewebsites.net/legalExcel",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vectorStoreName: storedVectorStoreName,
+        }),
+      }
+    );
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    throw error;
+
+    // Parse the JSON response
+    const responseData = await response.json();
+
+    // Check if 'blob_name' is present in the response
+    if (!responseData || !responseData.blob_name) {
+      throw new Error("Invalid server response. Missing 'blob_name'.");
+    }
+
+    // Extract 'blob_name' from the response
+    const blobName = responseData.blob_name;
+
+    // Return the parsed JSON data along with 'blob_name'
+    return { data: responseData, blobName };
+  } catch (error) {
+    // Handle errors that may occur during the request
+    console.error("Error downloading Legal Excel file:", error);
+    throw error; // Re-throw the error to be caught by the calling function
   }
 };
 
@@ -134,12 +133,9 @@ const clearConfig = async (): Promise<any> => {
 
 const FileUploadService = {
   upload,
-  processfile,
   getFiles,
-  riskAnalysis,
-  // fetchResponse,
-  getRiskAnalysisResults,
-  generateExcel,
+  commercialExcel,
+  technicalExcel,
   legalExcel,
   clearConfig,
 };
