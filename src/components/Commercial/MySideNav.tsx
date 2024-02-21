@@ -46,6 +46,29 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
         storedVectorStoreName || ""
       );
 
+      console.log("response received :", response.data);
+
+      // Extract the blob name from the response
+      const receivedBlobName = response.data.blob_name;
+
+      // Log the blob name for verification
+      console.log("blobName:", receivedBlobName);
+
+      // Construct the download URL or use it in any way you need
+      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
+
+      // Use the fetch API to download the file
+      const responseBlob = await fetch(downloadUrl);
+      const blobData = await responseBlob.blob();
+
+      // Create a download link and trigger the download
+      const downloadLink = document.createElement("a");
+      downloadLink.href = window.URL.createObjectURL(blobData);
+      downloadLink.download = `Commercial_Report_${new Date().toISOString()}.xlsx`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
       console.log("response received :", response);
       // Close the warning toast once the download is complete
       toast.dismiss();
@@ -72,6 +95,29 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
         storedVectorStoreName || ""
       );
 
+      console.log("response received :", response.data);
+
+      // Extract the blob name from the response
+      const receivedBlobName = response.data.blob_name;
+
+      // Log the blob name for verification
+      console.log("blobName:", receivedBlobName);
+
+      // Construct the download URL or use it in any way you need
+      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
+
+      // Use the fetch API to download the file
+      const responseBlob = await fetch(downloadUrl);
+      const blobData = await responseBlob.blob();
+
+      // Create a download link and trigger the download
+      const downloadLink = document.createElement("a");
+      downloadLink.href = window.URL.createObjectURL(blobData);
+      downloadLink.download = `Technical_Report_${new Date().toISOString()}.xlsx`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
       console.log("response received :", response);
       // Close the warning toast once the download is complete
       toast.dismiss();
@@ -80,8 +126,6 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
-    } finally {
-      setRiskAnalysisInProgress(false);
     }
   };
 
