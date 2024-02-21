@@ -16,8 +16,6 @@ interface MySideNavProps {
 
 function MySideNav({ storedVectorStoreName }: MySideNavProps) {
   const [isRiskAnalysisInProgress, setRiskAnalysisInProgress] = useState(false);
-  const AZURE_DOWNLOAD_STORAGE_CONTAINER_NAME = "rfq-downloads";
-  const [blobName, setBlobName] = useState("");
 
   const handleCommercialDownload = async () => {
     try {
