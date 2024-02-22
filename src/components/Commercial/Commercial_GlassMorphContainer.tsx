@@ -413,7 +413,12 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
               <div className="row">
                 <div className="col-8">
                   <label className="btn btn-default p-0">
-                    <input type="file" multiple onChange={selectFile} />
+                    <input
+                      type="file"
+                      multiple
+                      onChange={selectFile}
+                      accept=".pdf,.docx"
+                    />
                     {currentFiles.length > 0 && (
                       <span style={{ marginLeft: "-80px" }}>{`${
                         currentFiles.length
