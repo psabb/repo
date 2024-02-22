@@ -429,7 +429,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                   </label>
                 </div>
 
-                <div className="col-1">
+                {/* <div className="col-1">
                   <FontAwesomeIcon
                     icon={faTrash}
                     className={`text-danger cursor-pointer ${
@@ -441,7 +441,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                     }}
                     style={{ marginLeft: 50, height: 20, marginTop: 5 }}
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <button
@@ -450,7 +450,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                       !currentFiles || currentFiles.length === 0 || loading
                     } // Disable button when loading
                     onClick={upload}
-                    style={{ marginLeft: "70px" }}
+                    style={{ marginLeft: "120px" }}
                   >
                     Upload
                   </button>
@@ -529,7 +529,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
               {message && (
                 <div
                   className={`alert ${
-                    message === "File uploaded successfully"
+                    message === "Files uploaded successfully"
                       ? "alert-success"
                       : "alert-secondary"
                   } mt-3`}
