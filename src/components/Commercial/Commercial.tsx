@@ -5,6 +5,7 @@ import GlassMorphContainer from "./Commercial_GlassMorphContainer";
 import MySideNav from "./MySideNav";
 import localGif from "../../assets/abb.png";
 import { Link } from "react-router-dom";
+import { UserLogin } from "./UserLogin";
 
 interface NavbarContainerProps {}
 
@@ -23,6 +24,9 @@ const NavbarContainer: React.FC<NavbarContainerProps> = (props) => {
             <img src={localGif} alt="Local GIF" className="logo-image" />
           </div>
         </Link>
+        <div className="user-login-container">
+          <UserLogin {...props} />
+        </div>
       </div>
       <GlassMorphContainer
         children={undefined}
