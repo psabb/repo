@@ -420,7 +420,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                       accept=".pdf,.docx"
                     />
                     {currentFiles.length > 0 && (
-                      <span style={{ marginLeft: "-80px" }}>{`${
+                      <span style={{ marginLeft: "-190px" }}>{`${
                         currentFiles.length
                       } ${
                         currentFiles.length === 1 ? "file" : "files"
@@ -450,7 +450,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                       !currentFiles || currentFiles.length === 0 || loading
                     } // Disable button when loading
                     onClick={upload}
-                    style={{ marginLeft: "120px" }}
+                    style={{ marginLeft: "90px" }}
                   >
                     Upload
                   </button>
