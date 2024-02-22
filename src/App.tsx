@@ -3,21 +3,21 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Commercial from "./components/Commercial/Commercial";
 import "./styles.css";
 import LandingPage from "./components/Commercial/landingpage";
+import { GraphData } from "./components/Commercial/GraphData";
+import { withAuth } from "./msal/MsalAuthProvider";
 
-const App: React.FC = () => {
+const RootApp: React.FC = (props) => {
   return (
     <>
       <Router>
         <Routes>
-          {/* <Route path="/" element={<Commercial />} /> */}
           <Route path="/" element={<LandingPage children={undefined} />} />
-
-          {/* Commercial will be rendered for an empty path */}
-          <Route path="/commercial" element={<Commercial />} />
+          <Route path="/commercial" element={<Commercial {...props} />} />
+          <Route path="/graph-data" element={<GraphData />} />
         </Routes>
       </Router>
     </>
   );
 };
 
-export default App;
+export const App = withAuth(RootApp);
