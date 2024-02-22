@@ -15,3 +15,7 @@ input[type="file"] {
 .btn-danger:hover {
   background-color: #ff4754 !important;
 }
+
+.btn {
+  text-align: start;
+}

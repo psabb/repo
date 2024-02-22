@@ -414,6 +414,13 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                 <div className="col-8">
                   <label className="btn btn-default p-0">
                     <input type="file" multiple onChange={selectFile} />
+                    {currentFiles.length > 0 && (
+                      <span style={{ marginLeft: "-80px" }}>{`${
+                        currentFiles.length
+                      } ${
+                        currentFiles.length === 1 ? "file" : "files"
+                      } selected, click on upload`}</span>
+                    )}
                   </label>
                 </div>
 
