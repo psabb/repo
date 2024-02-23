@@ -205,56 +205,48 @@ const optionsMap: OptionsMap = {
   ],
   option5: [
     {
-      id: "13",
+      id: "1",
+      label: "Give the Summary of Liabilities and consequential losses?",
+    },
+    {
+      id: "2",
+      label: "What are the payment terms/conditions and Price Formats?",
+    },
+    {
+      id: "25",
+      label: "Give the summary of the document",
+    },
+    {
+      id: "26",
+      label: "List the ABB products in the document",
+    },
+    {
+      id: "27",
       label:
-        "Which systems among DCS, SIS, FGS, ICSS etc. are in the document?",
+        "Briefly summarize the installation procedures (if any) in the document",
     },
     {
-      id: "14",
-      label: "What is the scope of work for all the identified systems?",
-    },
-    {
-      id: "15",
+      id: "28",
       label:
-        "Briefly summarize system architecture along with standards, support systems etc.",
+        "If product catalog show the detailed specifications/configuration of the product",
     },
     {
-      id: "16",
-      label: "What are the redundancies in the architecture and/or design?",
-    },
-    {
-      id: "17",
-      label: "List the hardware and/or software design requirements",
-    },
-    {
-      id: "18",
-      label: "List the Bill of materials (BOM) for all the identified systems",
-    },
-    {
-      id: "19",
-      label: "Give the technical specs and standards for making DCS cabinets",
-    },
-    {
-      id: "20",
-      label: "Give the technical specs and standards for making SIS cabinets",
-    },
-    {
-      id: "21",
-      label: "Give the technical specs and standards for making FGS cabinets",
-    },
-    {
-      id: "22",
-      label: "Give the technical specs and standards for making ICSS cabinets",
-    },
-    {
-      id: "23",
+      id: "29",
       label:
-        "Give configuration/specs, info & quantities for Input modules (analog & digital)",
+        "If product catalog list the applications and benefits of the product",
     },
     {
-      id: "24",
+      id: "30",
+      label: "List the standards/clauses mentioned in the document",
+    },
+    {
+      id: "31",
       label:
-        "Give configuration/specs, info & quantities for Output modules (analog & digital)",
+        "Summarize payment terms, agreement conditions, limitations/liabilities etc.",
+    },
+    {
+      id: "32",
+      label: "What are the Governing laws, claims, and dispute mechanisms?",
     },
   ],
 };

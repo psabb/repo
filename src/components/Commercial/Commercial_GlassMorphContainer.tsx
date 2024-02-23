@@ -550,6 +550,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
             {uploadButtonClicked && (
               <div>
+                <br />
                 <ReactDropdown
                   value={selectedOption}
                   options={currentOptions}
