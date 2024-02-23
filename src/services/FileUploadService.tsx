@@ -187,7 +187,7 @@ const generalExcel = async (storedVectorStoreName: string): Promise<any> => {
     return { data: responseData, blobName };
   } catch (error) {
     // Handle errors that may occur during the request
-    console.error("Error downloading Legal Excel file:", error);
+    console.error("Error downloading General Excel file:", error);
     throw error; // Re-throw the error to be caught by the calling function
   }
 };

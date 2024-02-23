@@ -131,7 +131,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
 
   const handleLegalDownload = async () => {
     try {
-      console.log("triggered legeal");
+      console.log("triggered legal");
       toast.warning("Download is in progress...", { autoClose: false });
 
       const response = await FileUploadService.legalExcel(
@@ -174,7 +174,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
 
   const handleGeneralDownload = async () => {
     try {
-      console.log("triggered legeal");
+      console.log("triggered General download");
       toast.warning("Download is in progress...", { autoClose: false });
 
       const response = await FileUploadService.generalExcel(
@@ -199,7 +199,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Create a download link and trigger the download
       const downloadLink = document.createElement("a");
       downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `Legal_Report_${new Date().toISOString()}.xlsx`;
+      downloadLink.download = `General_Report_${new Date().toISOString()}.xlsx`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
