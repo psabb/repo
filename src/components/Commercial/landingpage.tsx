@@ -41,7 +41,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                     </Card.Title>
 
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      Download center for ABB library documents
+                      Application for ABB library documents
                     </Card.Subtitle>
 
                     <Button variant="danger">Click me</Button>
@@ -64,7 +64,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                       ABB Document Summarizer​
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      A portal to chat with specific RFQ documents​.
+                      Converse in realtime with your documents
                     </Card.Subtitle>
 
                     <Button variant="danger">Click me</Button>

@@ -205,8 +205,56 @@ const optionsMap: OptionsMap = {
   ],
   option5: [
     {
-      id: "43",
-      label: "list conditions on delivery",
+      id: "13",
+      label:
+        "Which systems among DCS, SIS, FGS, ICSS etc. are in the document?",
+    },
+    {
+      id: "14",
+      label: "What is the scope of work for all the identified systems?",
+    },
+    {
+      id: "15",
+      label:
+        "Briefly summarize system architecture along with standards, support systems etc.",
+    },
+    {
+      id: "16",
+      label: "What are the redundancies in the architecture and/or design?",
+    },
+    {
+      id: "17",
+      label: "List the hardware and/or software design requirements",
+    },
+    {
+      id: "18",
+      label: "List the Bill of materials (BOM) for all the identified systems",
+    },
+    {
+      id: "19",
+      label: "Give the technical specs and standards for making DCS cabinets",
+    },
+    {
+      id: "20",
+      label: "Give the technical specs and standards for making SIS cabinets",
+    },
+    {
+      id: "21",
+      label: "Give the technical specs and standards for making FGS cabinets",
+    },
+    {
+      id: "22",
+      label: "Give the technical specs and standards for making ICSS cabinets",
+    },
+    {
+      id: "23",
+      label:
+        "Give configuration/specs, info & quantities for Input modules (analog & digital)",
+    },
+    {
+      id: "24",
+      label:
+        "Give configuration/specs, info & quantities for Output modules (analog & digital)",
     },
   ],
 };
