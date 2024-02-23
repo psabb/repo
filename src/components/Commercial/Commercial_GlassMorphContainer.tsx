@@ -360,40 +360,40 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     );
   };
 
-  const deleteFile = async () => {
-    if (currentFile) {
-      try {
-        setCurrentFile(undefined);
-        setMessage("File deleted successfully");
+  // const deleteFile = async () => {
+  //   if (currentFile) {
+  //     try {
+  //       setCurrentFile(undefined);
+  //       setMessage("File deleted successfully");
 
-        // Update fileInfos after deletion
-        const files = await UploadService.getFiles();
-        setFileInfos(files.data);
-        setTimeout(() => {
-          clearMessage();
-        }, 5000);
-      } catch (error) {
-        console.error("Error deleting file:", error);
-      }
-    }
-  };
+  //       // Update fileInfos after deletion
+  //       const files = await UploadService.getFiles();
+  //       setFileInfos(files.data);
+  //       setTimeout(() => {
+  //         clearMessage();
+  //       }, 5000);
+  //     } catch (error) {
+  //       console.error("Error deleting file:", error);
+  //     }
+  //   }
+  // };
 
   const clearMessage = () => {
     setMessage("");
   };
 
-  const clear = async () => {
-    try {
-      console.log("clear config triggered");
-      const response = await FileUploadService.clearConfig();
-      console.log("response received");
-      // Close the warning toast once the download is complete
-      // Show a success toast after a successful download
-    } catch (error: any) {
-      // Handle errors
-      console.error("Error:", error.message);
-    }
-  };
+  // const clear = async () => {
+  //   try {
+  //     console.log("clear config triggered");
+  //     const response = await FileUploadService.clearConfig();
+  //     console.log("response received");
+  //     // Close the warning toast once the download is complete
+  //     // Show a success toast after a successful download
+  //   } catch (error: any) {
+  //     // Handle errors
+  //     console.error("Error:", error.message);
+  //   }
+  // };
 
   return (
     <>

@@ -4,10 +4,11 @@ export interface Question {
 }
 
 export type OptionsMap = {
-  option1: Question[],
-  option2: Question[],
-  option3: Question[],
-  option4: Question[],
+  option1: Question[];
+  option2: Question[];
+  option3: Question[];
+  option4: Question[];
+  option5: Question[];
 };
 
 const optionsMap: OptionsMap = {
@@ -200,6 +201,12 @@ const optionsMap: OptionsMap = {
       id: "42",
       label:
         "List notice provisions, performance security & local country requirements",
+    },
+  ],
+  option5: [
+    {
+      id: "43",
+      label: "list conditions on delivery",
     },
   ],
 };

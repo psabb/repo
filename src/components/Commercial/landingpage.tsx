@@ -41,9 +41,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                     </Card.Title>
 
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      A online dedicated portal for search ABB related
-                      Documents, which will be easily available for downloads
-                      either in MP4 or PDF formats .
+                      Download center for ABB library documents
                     </Card.Subtitle>
 
                     <Button variant="danger">Click me</Button>
@@ -66,9 +64,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                       ABB Document Summarizer​
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      A dedicated portal for ABB PAEN summarizer Bot that can
-                      enable you chat with your document and get responses in
-                      minutes​.
+                      A portal to chat with specific RFQ documents​.
                     </Card.Subtitle>
 
                     <Button variant="danger">Click me</Button>
