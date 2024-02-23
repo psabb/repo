@@ -28,7 +28,7 @@ const groupOptions = [
   },
   {
     displayName: "Procurement",
-    value: 5,
+    value: 1,
     description: "Procurement covers info about material, vendor info. etc,.",
   },
   {
