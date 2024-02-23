@@ -239,16 +239,16 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
             </NavIcon>
             <NavText>Download Center</NavText>
             <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
-              <NavText>Commercial Report</NavText>
+              <NavText>Commercial Digest</NavText>
             </NavItem>
             <NavItem eventKey="Legal" onClick={handleLegalDownload}>
-              <NavText>Legal Report</NavText>
+              <NavText>Legal Digest</NavText>
             </NavItem>
             <NavItem eventKey="Technical" onClick={handleTechnicalDownload}>
-              <NavText>Technical Report</NavText>
+              <NavText>Technical Digest</NavText>
             </NavItem>
             <NavItem eventKey="General" onClick={handleGeneralDownload}>
-              <NavText>General Report</NavText>
+              <NavText>General Digest</NavText>
             </NavItem>
           </NavItem>
         </SideNav.Nav>
