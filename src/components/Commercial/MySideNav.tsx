@@ -255,7 +255,6 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       </SideNav>
       <ToastContainer
         position="top-right"
-        autoClose={25000}
         hideProgressBar
         closeOnClick
         pauseOnHover
