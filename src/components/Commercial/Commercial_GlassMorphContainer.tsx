@@ -8,8 +8,6 @@ import Chip from "@mui/material/Chip";
 import yourImage from "../../assets/per.png";
 import theirImage from "../../assets/rob.jpg";
 import FileUploadService from "../../services/FileUploadService";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import UploadService from "../../services/FileUploadService";
 import IFile from "../../types/File";
 import "./FileUpload.css";
@@ -18,7 +16,7 @@ import BouncingDotsLoader from "./BouncingLoader";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import ReactDropdown from "react-beautiful-dropdown";
-import optionsMap, { OptionsMap, Question } from "./optionsData";
+import optionsMap, { Question } from "./optionsData";
 import { Example } from "./MultiToggle";
 
 interface GlassMorphContainerProps {
@@ -360,40 +358,26 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     );
   };
 
-  // const deleteFile = async () => {
-  //   if (currentFile) {
-  //     try {
-  //       setCurrentFile(undefined);
-  //       setMessage("File deleted successfully");
-
-  //       // Update fileInfos after deletion
-  //       const files = await UploadService.getFiles();
-  //       setFileInfos(files.data);
-  //       setTimeout(() => {
-  //         clearMessage();
-  //       }, 5000);
-  //     } catch (error) {
-  //       console.error("Error deleting file:", error);
-  //     }
-  //   }
-  // };
-
   const clearMessage = () => {
     setMessage("");
   };
 
-  // const clear = async () => {
-  //   try {
-  //     console.log("clear config triggered");
-  //     const response = await FileUploadService.clearConfig();
-  //     console.log("response received");
-  //     // Close the warning toast once the download is complete
-  //     // Show a success toast after a successful download
-  //   } catch (error: any) {
-  //     // Handle errors
-  //     console.error("Error:", error.message);
-  //   }
-  // };
+  const DownArrowSVG = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      {/* SVG path for a down arrow */}
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  );
 
   return (
     <>
@@ -428,20 +412,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                     )}
                   </label>
                 </div>
-
-                {/* <div className="col-1">
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    className={`text-danger cursor-pointer ${
-                      !currentFile ? "disabled" : ""
-                    }`}
-                    onClick={() => {
-                      deleteFile();
-                      clear();
-                    }}
-                    style={{ marginLeft: 50, height: 20, marginTop: 5 }}
-                  />
-                </div> */}
 
                 <div>
                   <button
@@ -555,7 +525,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                   value={selectedOption}
                   options={currentOptions}
                   valueHandler={inputHandler}
-                  placeholder="Suggested Questions for the user"
+                  placeholder="Click here for Suggested Questions as per the department"
                   error={{ isError: false, errorText: "Error" }}
                   customInputStyles={{
                     border: "2px solid gray",

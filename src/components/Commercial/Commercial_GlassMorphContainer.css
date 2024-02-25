@@ -145,3 +145,7 @@
   border-radius: 8px;
   padding: 16px;
 }
+
+.css-115meuo > svg:first-child {
+  display: none; /* or use visibility: hidden; if you want to keep the space */
+}
