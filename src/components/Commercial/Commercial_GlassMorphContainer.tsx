@@ -42,7 +42,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
   const [progress, setProgress] = useState<number>(0);
   const [message, setMessage] = useState<string>("");
-  const [fileInfos, setFileInfos] = useState<IFile[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
   const [showCheckIcon, setShowCheckIcon] = useState(false);
