@@ -15,7 +15,8 @@ import { Dispatch, SetStateAction } from "react";
 import BouncingDotsLoader from "./BouncingLoader";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import CheckIcon from "@mui/icons-material/Check";
-import ReactDropdown from "react-beautiful-dropdown";
+import Dropdown from "react-dropdown";
+import "react-dropdown/style.css";
 import optionsMap, { Question } from "./optionsData";
 import { Example } from "./MultiToggle";
 
@@ -57,10 +58,15 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const currentOptions: Question[] =
     optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
 
-  const inputHandler = (val: string) => {
-    setSelectedOption(val);
+  const transformedOptions = currentOptions.map((question) => ({
+    value: question.id,
+    label: question.label,
+  }));
+
+  const inputHandler = (label: any) => {
+    setSelectedOption(label);
     const storedVectorStoreName: string | null = null;
-    handleMessageSend(val, storedVectorStoreName);
+    handleMessageSend(label, storedVectorStoreName);
     setSelectedOption("");
   };
 
@@ -362,23 +368,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     setMessage("");
   };
 
-  const DownArrowSVG = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      {/* SVG path for a down arrow */}
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M19 9l-7 7-7-7"
-      />
-    </svg>
-  );
-
   return (
     <>
       <div className="glass-morph-wrapper">
@@ -521,23 +510,11 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
             {uploadButtonClicked && (
               <div>
                 <br />
-                <ReactDropdown
+                <Dropdown
                   value={selectedOption}
-                  options={currentOptions}
-                  valueHandler={inputHandler}
-                  placeholder="Click here for Suggested Questions as per the department"
-                  error={{ isError: false, errorText: "Error" }}
-                  customInputStyles={{
-                    border: "2px solid gray",
-                    borderRadius: "5px",
-                    padding: "8px",
-                  }}
-                  customDropdownItemStyles={{
-                    backgroundColor: "white",
-                    color: "black",
-                    marginLeft: "-40px",
-                    listStyle: "none",
-                  }}
+                  options={transformedOptions}
+                  onChange={(option) => inputHandler(option.label)}
+                  placeholder="Suggested Questions as per the category selected"
                 />
               </div>
             )}
