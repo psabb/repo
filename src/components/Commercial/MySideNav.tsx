@@ -73,7 +73,10 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!", { autoClose: false });
+      toast.success(
+        "Download successful, Please Check your Downloads folder!",
+        { autoClose: false }
+      );
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -122,7 +125,10 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!", { autoClose: false });
+      toast.success(
+        "Download successful, Please Check your Downloads folder!",
+        { autoClose: false }
+      );
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -165,7 +171,10 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!", { autoClose: false });
+      toast.success(
+        "Download successful, Please Check your Downloads folder!",
+        { autoClose: false }
+      );
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -208,7 +217,10 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!", { autoClose: false });
+      toast.success(
+        "Download successful, Please Check your Downloads folder!",
+        { autoClose: false }
+      );
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -259,6 +271,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
         closeOnClick
         pauseOnHover
         draggable
+        style={{ marginTop: "3%" }}
       />
     </>
   );
