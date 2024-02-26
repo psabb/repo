@@ -73,7 +73,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!");
+      toast.success("Download successful!", { autoClose: false });
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -122,7 +122,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!");
+      toast.success("Download successful!", { autoClose: false });
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -165,7 +165,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!");
+      toast.success("Download successful!", { autoClose: false });
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -208,7 +208,7 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
       // Close the warning toast once the download is complete
       toast.dismiss();
       // Show a success toast after a successful download
-      toast.success("Download successful!");
+      toast.success("Download successful!", { autoClose: false });
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
@@ -239,16 +239,16 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
             </NavIcon>
             <NavText>Download Center</NavText>
             <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
-              <NavText>Commercial Digest</NavText>
+              <NavText>Commercial Summary</NavText>
             </NavItem>
             <NavItem eventKey="Legal" onClick={handleLegalDownload}>
-              <NavText>Legal Digest</NavText>
+              <NavText>Legal Summary</NavText>
             </NavItem>
             <NavItem eventKey="Technical" onClick={handleTechnicalDownload}>
-              <NavText>Technical Digest</NavText>
+              <NavText>Technical Summary</NavText>
             </NavItem>
             <NavItem eventKey="General" onClick={handleGeneralDownload}>
-              <NavText>General Digest</NavText>
+              <NavText>General Summary</NavText>
             </NavItem>
           </NavItem>
         </SideNav.Nav>
