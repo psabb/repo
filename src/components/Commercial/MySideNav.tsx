@@ -39,6 +39,11 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
 
   const handleCommercialDownload = async () => {
     try {
+      if (isRiskAnalysisInProgress) {
+        return; // Disable download if risk analysis is in progress
+      }
+
+      setRiskAnalysisInProgress(true);
       console.log("triggered commercial download");
       toast.warning("Download is in progress...", { autoClose: false });
 
@@ -80,6 +85,8 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
+    } finally {
+      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
     }
   };
 
@@ -132,11 +139,18 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
+    } finally {
+      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
     }
   };
 
   const handleLegalDownload = async () => {
     try {
+      if (isRiskAnalysisInProgress) {
+        return; // Disable download if risk analysis is in progress
+      }
+
+      setRiskAnalysisInProgress(true);
       console.log("triggered legal");
       toast.warning("Download is in progress...", { autoClose: false });
 
@@ -178,11 +192,18 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
+    } finally {
+      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
     }
   };
 
   const handleGeneralDownload = async () => {
     try {
+      if (isRiskAnalysisInProgress) {
+        return; // Disable download if risk analysis is in progress
+      }
+
+      setRiskAnalysisInProgress(true);
       console.log("triggered General download");
       toast.warning("Download is in progress...", { autoClose: false });
 
@@ -224,6 +245,8 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     } catch (error: any) {
       // Handle errors
       console.error("Error:", error.message);
+    } finally {
+      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
     }
   };
 

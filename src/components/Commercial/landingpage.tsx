@@ -41,10 +41,11 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                     </Card.Title>
 
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      Application for ABB library documents
+                      Leads to ABB chat utility and searchs info from ABB
+                      Library
                     </Card.Subtitle>
 
-                    <Button variant="danger">Click me</Button>
+                    <Button variant="danger">Enter</Button>
                   </Card.Body>
                 </Link>
               </Card>
@@ -64,10 +65,10 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                       ABB Document Summarizer​
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      Converse in realtime with your documents
+                      PAEN doc summarizer to converse in real time
                     </Card.Subtitle>
 
-                    <Button variant="danger">Click me</Button>
+                    <Button variant="danger">Enter</Button>
                   </Card.Body>
                 </Link>
               </Card>
