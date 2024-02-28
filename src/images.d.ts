@@ -14,3 +14,14 @@ declare module "*.jpg" {
 }
 
 declare module "@trendmicro/react-sidenav";
+
+declare module "*.svg" {
+  const content: string;
+  export default content;
+}
+declare module "*.gif" {
+  const content: string;
+  export default content;
+}
+
+declare module "react-multi-toggle";

@@ -89,12 +89,13 @@
   height: 30vh; /* Set your preferred height */
 }
 
-.glass-morph-container::-webkit-scrollbar {
-  width: 0.5em;
+.glass-morph-container::-webkit-scrollbar-thumb {
+  background-color: rgba(152, 148, 148, 0.603);
+  border-radius: 8px;
 }
 
-.glass-morph-container::-webkit-scrollbar-thumb {
-  background-color: transparent;
+.glass-morph-container::-webkit-scrollbar {
+  width: 8px;
 }
 
 .greeting {

@@ -19,12 +19,15 @@ import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 import optionsMap, { Question } from "./optionsData";
 import { Example } from "./MultiToggle";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface GlassMorphContainerProps {
   children: React.ReactNode;
   isSideMenuOpen: boolean;
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
   setstoredVectorStoreName: Dispatch<SetStateAction<string | null>>;
+  setFileUploaded: Dispatch<SetStateAction<boolean>>;
 }
 
 interface Message {
@@ -37,6 +40,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   children,
   setMenuOpen,
   setstoredVectorStoreName,
+  setFileUploaded,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
@@ -53,6 +57,8 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [localstoredVectorStoreName, setLocalStoredVectorStoreName] =
     useState(null);
   const [blobName, setBlobName] = useState<string>("");
+  const [uploadingFileNames, setUploadingFileNames] = useState<string[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const currentOptions: Question[] =
     optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
@@ -310,6 +316,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   }, [messages]);
 
   const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUploadButtonClicked(false);
     const { files } = event.target;
     const selectedFiles = Array.from(files || []);
 
@@ -318,12 +325,20 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       setProgress(0);
       setMessage("");
 
+      const fileNames = selectedFiles.map((file) => file.name);
+      setUploadingFileNames(fileNames);
+
       // Clear the file input value
       event.target.value = "";
     }
   };
 
-  const upload = () => {
+  const upload = async () => {
+    if (isProcessing) {
+      toast.error("Another file is already being processed. Please wait.");
+      return;
+    }
+
     setLoading(true);
     setProgress(0);
 
@@ -332,35 +347,43 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const uploadPromises: Promise<void> = new Promise<void>(
-      async (resolve, reject) => {
-        try {
-          const response = await UploadService.upload(
-            currentFiles,
-            (event: any) => {
-              setProgress(Math.round((100 * event.loaded) / event.total));
-            }
-          );
-          // Check if the response contains blob_name
-          const blobName = response.data.blob_name; // Adjust this based on the actual structure of your response
-          setBlobName(blobName); // Assuming you have a state variable for blobName
-          console.log("BlobName after upload:", blobName);
-          setLoading(false);
-          await triggerProcessFile(blobName);
-          setMessage("Files uploaded successfully");
-          console.log("Files uploaded successfully");
-          setMessages([]);
-          setUploadButtonClicked(true);
-          setTimeout(() => {
-            clearMessage();
-          }, 5000);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
+    try {
+      setIsProcessing(true); // Set processing state to true
+
+      if (uploadButtonClicked) {
+        toast.error(
+          "Files have already been uploaded. Please select new files."
+        );
+        setLoading(false);
+        return;
       }
-    );
+
+      const response = await UploadService.upload(
+        currentFiles,
+        (event: any) => {
+          setProgress(Math.round((100 * event.loaded) / event.total));
+        }
+      );
+      const blobName = response.data.blob_name;
+      setBlobName(blobName);
+      console.log("BlobName after upload:", blobName);
+      setLoading(false);
+      await triggerProcessFile(blobName);
+      setMessage("Files uploaded successfully");
+      console.log("Files uploaded successfully");
+      if (response.status === 200) {
+        setFileUploaded(true); // Set the state indicating a successful upload
+      }
+      setMessages([]);
+      setUploadButtonClicked(true);
+      setTimeout(() => {
+        clearMessage();
+      }, 5000);
+    } catch (error) {
+      console.error("Error during upload:", error);
+    } finally {
+      setIsProcessing(false); // Reset processing state regardless of success or failure
+    }
   };
 
   const clearMessage = () => {
@@ -415,18 +438,16 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                 </div>
               </div>
 
-              {currentFile && (
-                <div className="progress progress-lg my-3">
-                  <div
-                    className="progress-bar progress-bar-info"
-                    role="progressbar"
-                    aria-valuenow={progress}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    style={{ width: `${progress}%` }}
-                  >
-                    {currentFile.name}
-                  </div>
+              {uploadingFileNames.length > 0 && (
+                <div>
+                  <p style={{ marginTop: "10px" }}>
+                    Selected Files for Upload:
+                  </p>
+                  <ul>
+                    {uploadingFileNames.map((fileName, index) => (
+                      <li key={index}>{fileName}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
 

@@ -11,10 +11,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 interface MySideNavProps {
-  storedVectorStoreName: string | null; // adjust the type accordingly
+  storedVectorStoreName: string | null;
+  fileUploaded: boolean;
 }
 
-function MySideNav({ storedVectorStoreName }: MySideNavProps) {
+function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
   const [isRiskAnalysisInProgress, setRiskAnalysisInProgress] = useState(false);
 
   useEffect(() => {
@@ -250,6 +251,17 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
     }
   };
 
+  const handleDownloadClick = (downloadFunction: { (): void }) => {
+    if (!isRiskAnalysisInProgress) {
+      downloadFunction();
+    } else {
+      // Show an error toast if download is disabled
+      toast.error(
+        "Download is disabled. Please wait for the current download to complete."
+      );
+    }
+  };
+
   return (
     <>
       <SideNav onSelect={(selected: string) => {}}>
@@ -262,30 +274,44 @@ function MySideNav({ storedVectorStoreName }: MySideNavProps) {
             </NavIcon>
             <NavText>New Chat</NavText>
           </NavItem>
-        </SideNav.Nav>
 
-        <SideNav.Nav>
-          <NavItem eventKey="downloads">
-            <NavIcon>
-              <i
-                className="fa-solid fa-download"
-                style={{ fontSize: "1.5em" }}
-              ></i>
-            </NavIcon>
-            <NavText>Download Center</NavText>
-            <NavItem eventKey="commercial" onClick={handleCommercialDownload}>
-              <NavText>Commercial Summary</NavText>
+          {fileUploaded && (
+            <NavItem eventKey="downloads">
+              <NavIcon>
+                <i
+                  className="fa-solid fa-download"
+                  style={{ fontSize: "1.5em" }}
+                ></i>
+              </NavIcon>
+              <NavText>Download Center</NavText>
+
+              {/* Individual Download Items */}
+              <NavItem
+                eventKey="commercial"
+                onClick={() => handleDownloadClick(handleCommercialDownload)}
+              >
+                <NavText>Commercial Summary</NavText>
+              </NavItem>
+              <NavItem
+                eventKey="Legal"
+                onClick={() => handleDownloadClick(handleLegalDownload)}
+              >
+                <NavText>Legal Summary</NavText>
+              </NavItem>
+              <NavItem
+                eventKey="Technical"
+                onClick={() => handleDownloadClick(handleTechnicalDownload)}
+              >
+                <NavText>Technical Summary</NavText>
+              </NavItem>
+              <NavItem
+                eventKey="General"
+                onClick={() => handleDownloadClick(handleGeneralDownload)}
+              >
+                <NavText>General Summary</NavText>
+              </NavItem>
             </NavItem>
-            <NavItem eventKey="Legal" onClick={handleLegalDownload}>
-              <NavText>Legal Summary</NavText>
-            </NavItem>
-            <NavItem eventKey="Technical" onClick={handleTechnicalDownload}>
-              <NavText>Technical Summary</NavText>
-            </NavItem>
-            <NavItem eventKey="General" onClick={handleGeneralDownload}>
-              <NavText>General Summary</NavText>
-            </NavItem>
-          </NavItem>
+          )}
         </SideNav.Nav>
       </SideNav>
       <ToastContainer

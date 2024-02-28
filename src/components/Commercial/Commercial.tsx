@@ -14,11 +14,15 @@ const NavbarContainer: React.FC<NavbarContainerProps> = (props) => {
   const [storedVectorStoreName, setStoredVectorStoreName] = useState<
     string | null
   >(null);
+  const [fileUploaded, setFileUploaded] = useState<boolean>(false);
 
   return (
     <>
       <div className="navbar-container">
-        <MySideNav storedVectorStoreName={storedVectorStoreName} />
+        <MySideNav
+          storedVectorStoreName={storedVectorStoreName}
+          fileUploaded={fileUploaded}
+        />
         <Link to="/">
           <div className="logo-container">
             <img src={localGif} alt="Local GIF" className="logo-image" />
@@ -33,6 +37,7 @@ const NavbarContainer: React.FC<NavbarContainerProps> = (props) => {
         isSideMenuOpen={isSideMenuOpen}
         setMenuOpen={setSideMenuOpen}
         setstoredVectorStoreName={setStoredVectorStoreName}
+        setFileUploaded={setFileUploaded}
       />
     </>
   );
