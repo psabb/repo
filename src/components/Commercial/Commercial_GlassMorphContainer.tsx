@@ -38,7 +38,6 @@ interface Message {
 
 const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   children,
-  setMenuOpen,
   setstoredVectorStoreName,
   setFileUploaded,
 }) => {
@@ -59,6 +58,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [blobName, setBlobName] = useState<string>("");
   const [uploadingFileNames, setUploadingFileNames] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const currentOptions: Question[] =
     optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
@@ -305,8 +305,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     }
   };
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -445,7 +443,16 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
                   </p>
                   <ul>
                     {uploadingFileNames.map((fileName, index) => (
-                      <li key={index}>{fileName}</li>
+                      <li key={index}>
+                        {fileName.length > 25
+                          ? `${fileName.substring(
+                              0,
+                              25
+                            )}...${fileName.substring(
+                              fileName.lastIndexOf(".") + 1
+                            )}`
+                          : fileName}
+                      </li>
                     ))}
                   </ul>
                 </div>
