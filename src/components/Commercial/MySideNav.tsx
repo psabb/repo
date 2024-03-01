@@ -99,6 +99,7 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
       }
 
       setRiskAnalysisInProgress(true);
+      console.log("triggered technical download");
       toast.warning("Download is in progress...", { autoClose: false });
 
       // Make a request to the Flask backend to generate Excel and get the file as a response
@@ -251,6 +252,59 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
     }
   };
 
+  const handleProcurementDownload = async () => {
+    try {
+      if (isRiskAnalysisInProgress) {
+        return; // Disable download if risk analysis is in progress
+      }
+
+      setRiskAnalysisInProgress(true);
+      console.log("triggered Procurement download");
+      toast.warning("Download is in progress...", { autoClose: false });
+
+      const response = await FileUploadService.procurementExcel(
+        storedVectorStoreName || ""
+      );
+
+      console.log("response received :", response.data);
+
+      // Extract the blob name from the response
+      const receivedBlobName = response.data.blob_name;
+
+      // Log the blob name for verification
+      console.log("blobName:", receivedBlobName);
+
+      // Construct the download URL or use it in any way you need
+      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
+
+      // Use the fetch API to download the file
+      const responseBlob = await fetch(downloadUrl);
+      const blobData = await responseBlob.blob();
+
+      // Create a download link and trigger the download
+      const downloadLink = document.createElement("a");
+      downloadLink.href = window.URL.createObjectURL(blobData);
+      downloadLink.download = `General_Report_${new Date().toISOString()}.xlsx`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      console.log("response received :", response);
+      // Close the warning toast once the download is complete
+      toast.dismiss();
+      // Show a success toast after a successful download
+      toast.success(
+        "Download successful, Please Check your Downloads folder!",
+        { autoClose: false }
+      );
+    } catch (error: any) {
+      // Handle errors
+      console.error("Error:", error.message);
+    } finally {
+      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
+    }
+  };
+
   const handleDownloadClick = (downloadFunction: { (): void }) => {
     if (!isRiskAnalysisInProgress) {
       downloadFunction();
@@ -309,6 +363,12 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
                 onClick={() => handleDownloadClick(handleGeneralDownload)}
               >
                 <NavText>General Summary</NavText>
+              </NavItem>
+              <NavItem
+                eventKey="Procurement"
+                onClick={() => handleDownloadClick(handleProcurementDownload)}
+              >
+                <NavText>Procurement Summary</NavText>
               </NavItem>
             </NavItem>
           )}

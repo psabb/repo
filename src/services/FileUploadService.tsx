@@ -192,6 +192,48 @@ const generalExcel = async (storedVectorStoreName: string): Promise<any> => {
   }
 };
 
+const procurementExcel = async (
+  storedVectorStoreName: string
+): Promise<any> => {
+  try {
+    /// Make a request to the server with the vectorStoreName
+    const response = await fetch(
+      "https://github-backend.azurewebsites.net/procurementExcel",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vectorStoreName: storedVectorStoreName,
+        }),
+      }
+    );
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    // Parse the JSON response
+    const responseData = await response.json();
+
+    // Check if 'blob_name' is present in the response
+    if (!responseData || !responseData.blob_name) {
+      throw new Error("Invalid server response. Missing 'blob_name'.");
+    }
+
+    // Extract 'blob_name' from the response
+    const blobName = responseData.blob_name;
+
+    // Return the parsed JSON data along with 'blob_name'
+    return { data: responseData, blobName };
+  } catch (error) {
+    // Handle errors that may occur during the request
+    console.error("Error downloading Procurement Excel file:", error);
+    throw error; // Re-throw the error to be caught by the calling function
+  }
+};
+
 const clearConfig = async (): Promise<any> => {
   try {
     // Make a GET request to the "/generate_legal_excel" endpoint
@@ -210,6 +252,7 @@ const FileUploadService = {
   technicalExcel,
   legalExcel,
   generalExcel,
+  procurementExcel,
   clearConfig,
 };
 
