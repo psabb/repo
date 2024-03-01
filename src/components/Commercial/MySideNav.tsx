@@ -38,19 +38,20 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
     }
   };
 
-  const handleCommercialDownload = async () => {
+  const handleDownload = async (
+    serviceFunction: any,
+    fileNamePrefix: string
+  ) => {
     try {
       if (isRiskAnalysisInProgress) {
         return; // Disable download if risk analysis is in progress
       }
 
       setRiskAnalysisInProgress(true);
-      console.log("triggered commercial download");
+      console.log("Triggered ${fileNamePrefix} download");
       toast.warning("Download is in progress...", { autoClose: false });
 
-      const response = await FileUploadService.commercialExcel(
-        storedVectorStoreName || ""
-      );
+      const response = await serviceFunction(storedVectorStoreName || "");
 
       console.log("response received :", response.data);
 
@@ -91,218 +92,20 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
     }
   };
 
-  const handleTechnicalDownload = async () => {
-    try {
-      if (isRiskAnalysisInProgress) {
-        // If risk analysis is already in progress, do nothing
-        return;
-      }
-
-      setRiskAnalysisInProgress(true);
-      console.log("triggered technical download");
-      toast.warning("Download is in progress...", { autoClose: false });
-
-      // Make a request to the Flask backend to generate Excel and get the file as a response
-      const response = await FileUploadService.technicalExcel(
-        storedVectorStoreName || ""
-      );
-
-      console.log("response received :", response.data);
-
-      // Extract the blob name from the response
-      const receivedBlobName = response.data.blob_name;
-
-      // Log the blob name for verification
-      console.log("blobName:", receivedBlobName);
-
-      // Construct the download URL or use it in any way you need
-      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
-
-      // Use the fetch API to download the file
-      const responseBlob = await fetch(downloadUrl);
-      const blobData = await responseBlob.blob();
-
-      // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `Technical_Report_${new Date().toISOString()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-      console.log("response received :", response);
-      // Close the warning toast once the download is complete
-      toast.dismiss();
-      // Show a success toast after a successful download
-      toast.success(
-        "Download successful, Please Check your Downloads folder!",
-        { autoClose: false }
-      );
-    } catch (error: any) {
-      // Handle errors
-      console.error("Error:", error.message);
-    } finally {
-      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
-    }
+  const handleCommercialDownload = () => {
+    handleDownload(FileUploadService.commercialExcel, "Commercial");
   };
-
-  const handleLegalDownload = async () => {
-    try {
-      if (isRiskAnalysisInProgress) {
-        return; // Disable download if risk analysis is in progress
-      }
-
-      setRiskAnalysisInProgress(true);
-      console.log("triggered legal");
-      toast.warning("Download is in progress...", { autoClose: false });
-
-      const response = await FileUploadService.legalExcel(
-        storedVectorStoreName || ""
-      );
-
-      console.log("response received :", response.data);
-
-      // Extract the blob name from the response
-      const receivedBlobName = response.data.blob_name;
-
-      // Log the blob name for verification
-      console.log("blobName:", receivedBlobName);
-
-      // Construct the download URL or use it in any way you need
-      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
-
-      // Use the fetch API to download the file
-      const responseBlob = await fetch(downloadUrl);
-      const blobData = await responseBlob.blob();
-
-      // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `Legal_Report_${new Date().toISOString()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-      console.log("response received :", response);
-      // Close the warning toast once the download is complete
-      toast.dismiss();
-      // Show a success toast after a successful download
-      toast.success(
-        "Download successful, Please Check your Downloads folder!",
-        { autoClose: false }
-      );
-    } catch (error: any) {
-      // Handle errors
-      console.error("Error:", error.message);
-    } finally {
-      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
-    }
+  const handleTechnicalDownload = () => {
+    handleDownload(FileUploadService.technicalExcel, "Technical");
   };
-
-  const handleGeneralDownload = async () => {
-    try {
-      if (isRiskAnalysisInProgress) {
-        return; // Disable download if risk analysis is in progress
-      }
-
-      setRiskAnalysisInProgress(true);
-      console.log("triggered General download");
-      toast.warning("Download is in progress...", { autoClose: false });
-
-      const response = await FileUploadService.generalExcel(
-        storedVectorStoreName || ""
-      );
-
-      console.log("response received :", response.data);
-
-      // Extract the blob name from the response
-      const receivedBlobName = response.data.blob_name;
-
-      // Log the blob name for verification
-      console.log("blobName:", receivedBlobName);
-
-      // Construct the download URL or use it in any way you need
-      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
-
-      // Use the fetch API to download the file
-      const responseBlob = await fetch(downloadUrl);
-      const blobData = await responseBlob.blob();
-
-      // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `General_Report_${new Date().toISOString()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-      console.log("response received :", response);
-      // Close the warning toast once the download is complete
-      toast.dismiss();
-      // Show a success toast after a successful download
-      toast.success(
-        "Download successful, Please Check your Downloads folder!",
-        { autoClose: false }
-      );
-    } catch (error: any) {
-      // Handle errors
-      console.error("Error:", error.message);
-    } finally {
-      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
-    }
+  const handleLegalDownload = () => {
+    handleDownload(FileUploadService.legalExcel, "Legal");
   };
-
-  const handleProcurementDownload = async () => {
-    try {
-      if (isRiskAnalysisInProgress) {
-        return; // Disable download if risk analysis is in progress
-      }
-
-      setRiskAnalysisInProgress(true);
-      console.log("triggered Procurement download");
-      toast.warning("Download is in progress...", { autoClose: false });
-
-      const response = await FileUploadService.procurementExcel(
-        storedVectorStoreName || ""
-      );
-
-      console.log("response received :", response.data);
-
-      // Extract the blob name from the response
-      const receivedBlobName = response.data.blob_name;
-
-      // Log the blob name for verification
-      console.log("blobName:", receivedBlobName);
-
-      // Construct the download URL or use it in any way you need
-      const downloadUrl = `https://rfqdocumentstorage.blob.core.windows.net/rfq-downloads/${receivedBlobName}`;
-
-      // Use the fetch API to download the file
-      const responseBlob = await fetch(downloadUrl);
-      const blobData = await responseBlob.blob();
-
-      // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
-      downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `General_Report_${new Date().toISOString()}.xlsx`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-      console.log("response received :", response);
-      // Close the warning toast once the download is complete
-      toast.dismiss();
-      // Show a success toast after a successful download
-      toast.success(
-        "Download successful, Please Check your Downloads folder!",
-        { autoClose: false }
-      );
-    } catch (error: any) {
-      // Handle errors
-      console.error("Error:", error.message);
-    } finally {
-      setRiskAnalysisInProgress(false); // Enable downloads after completion or failure
-    }
+  const handleGeneralDownload = () => {
+    handleDownload(FileUploadService.generalExcel, "General");
+  };
+  const handleProcurementDownload = () => {
+    handleDownload(FileUploadService.procurementExcel, "Procurement");
   };
 
   const handleDownloadClick = (downloadFunction: { (): void }) => {
