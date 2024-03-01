@@ -48,7 +48,7 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
       }
 
       setRiskAnalysisInProgress(true);
-      console.log("Triggered ${fileNamePrefix} download");
+      console.log("Triggered download");
       toast.warning("Download is in progress...", { autoClose: false });
 
       const response = await serviceFunction(storedVectorStoreName || "");
@@ -71,7 +71,7 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
       // Create a download link and trigger the download
       const downloadLink = document.createElement("a");
       downloadLink.href = window.URL.createObjectURL(blobData);
-      downloadLink.download = `Commercial_Report_${new Date().toISOString()}.xlsx`;
+      downloadLink.download = `${fileNamePrefix}_${new Date().toISOString()}.xlsx`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
