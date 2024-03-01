@@ -401,7 +401,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
           <Example onCategorySelect={handleCategorySelect} />
 
           <div className="glass-morph-insidecontainer">
-            <p>Upload Your Document (.pdf, .docx formats only) :</p>
+            <p>Please upload your document (.pdf, .docx formats only) :</p>
             <div>
               <div className="row">
                 <div className="col-8">
