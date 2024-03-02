@@ -28,7 +28,42 @@ steps:
   displayName: 'npm install and build'
  
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: $(Build.ArtifactStagingDirectory)
+- task: ArchiveFiles@2
+            displayName: 'Compress App'
+            inputs:
+            rootFolderOrFile: '$(System.DefaultWorkingDirectory)/${{ parameters.appName }}'
+            includeRootFolder: false
+            archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.appName }}.zip'
+        - task: PublishBuildArtifacts@1
+            displayName: 'Publish Artifact'
+            inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
+            publishLocation: 'Container'
+        - task: AzureFunctionApp@1
+            displayName: 'Deploy ${{ parameters.appName }} to ${{ parameters.environment }}'
+            inputs:
+            azureSubscription: ${{ parameters.azureSubscriptionServiceConnectionName }}
+            appType: functionAppLinux
+            appName: ${{ parameters.appName }}-${{ parameters.environment }}
+            package: $(Build.ArtifactStagingDirectory)/${{ parameters.appName }}.zip
+
+## other stages, jobs and task
+
+- stage: deploy_production
+    displayName: 'Deploy App'
+    jobs:
+    - job: deploy1
+        displayName: 'Deploying ${{ parameters.appName }}'
+        pool:
+        vmImage: 'windows-latest'
+        steps:
+        - download: current
+            artifact: drop
+        - task: AzureFunctionApp@1
+            displayName: 'Deploy ${{ parameters.appName }}'
+            inputs:
+            azureSubscription: ${{ parameters.azureSubscriptionServiceConnectionName }}
+            appType: functionAppLinux
+            appName: ${{ parameters.appName }}-prd
+            package: $(Pipeline.Workspace)/drop/${{ parameters.appName }}.zip
