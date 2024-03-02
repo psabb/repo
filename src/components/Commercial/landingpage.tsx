@@ -18,7 +18,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           <img src={logo} alt="Logo" className="logo-img" />
 
           <div className="greeting2">
-            <p>Hi, I am PAEN ABB</p>
+            <p>Hi, I am PAEN ABBot</p>
             <div className="greeting3">
               <p>How Can I Help You Today?</p>
             </div>
