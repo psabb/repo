@@ -55,7 +55,7 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
         };
 
         const response = await fetch(
-          "https://azurebackend.azurewebsites.net/process_input",
+          "https://github-backend.azurewebsites.net/process_input",
           {
             method: "POST",
             headers: {
