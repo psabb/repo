@@ -36,7 +36,7 @@ const commercialExcel = async (storedVectorStoreName: string): Promise<any> => {
   try {
     /// Make a request to the server with the vectorStoreName
     const response = await fetch(
-      "https://github-backend.azurewebsites.net/commercialExcel",
+      "https://rfqbackenddeployment.azurewebsites.net/commercialExcel",
       {
         method: "POST",
         headers: {
@@ -76,7 +76,7 @@ const technicalExcel = async (storedVectorStoreName: string): Promise<any> => {
   try {
     /// Make a request to the server with the vectorStoreName
     const response = await fetch(
-      "https://github-backend.azurewebsites.net/technicalExcel",
+      "https://rfqbackenddeployment.azurewebsites.net/technicalExcel",
       {
         method: "POST",
         headers: {
@@ -116,7 +116,7 @@ const legalExcel = async (storedVectorStoreName: string): Promise<any> => {
   try {
     /// Make a request to the server with the vectorStoreName
     const response = await fetch(
-      "https://github-backend.azurewebsites.net/legalExcel",
+      "https://rfqbackenddeployment.azurewebsites.net/legalExcel",
       {
         method: "POST",
         headers: {
@@ -156,7 +156,7 @@ const generalExcel = async (storedVectorStoreName: string): Promise<any> => {
   try {
     /// Make a request to the server with the vectorStoreName
     const response = await fetch(
-      "https://github-backend.azurewebsites.net/generalExcel",
+      "https://rfqbackenddeployment.azurewebsites.net/generalExcel",
       {
         method: "POST",
         headers: {
@@ -198,7 +198,7 @@ const procurementExcel = async (
   try {
     /// Make a request to the server with the vectorStoreName
     const response = await fetch(
-      "https://github-backend.azurewebsites.net/procurementExcel",
+      "https://rfqbackenddeployment.azurewebsites.net/procurementExcel",
       {
         method: "POST",
         headers: {

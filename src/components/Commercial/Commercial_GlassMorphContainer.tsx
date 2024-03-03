@@ -235,7 +235,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       };
 
       const response = await fetch(
-        `https://github-backend.azurewebsites.net/processfile`,
+        `https://rfqbackenddeployment.azurewebsites.net/processfile`,
         {
           method: "POST",
           headers: {
@@ -282,7 +282,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       console.log(requestBody);
 
       const response = await fetch(
-        "https://github-backend.azurewebsites.net/process_input",
+        "https://rfqbackenddeployment.azurewebsites.net/process_input",
         {
           method: "POST",
           headers: {

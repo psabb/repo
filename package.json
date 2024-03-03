@@ -2,7 +2,7 @@
   "name": "typescriptai",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://github-backend.azurewebsites.net",
+  "proxy": "https://rfqbackenddeployment.azurewebsites.net",
   "dependencies": {
     "@azure/msal": "^1.4.5",
     "@azure/msal-browser": "^3.7.1",
