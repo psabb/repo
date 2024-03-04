@@ -18,7 +18,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           <img src={logo} alt="Logo" className="logo-img" />
 
           <div className="greeting2">
-            <p>Hi, I am PAEN ABBot Summarizer</p>
+            <p>Hi, I am PAEN ABBot</p>
             <div className="greeting3">
               <p>How Can I Help You Today?</p>
             </div>
@@ -65,7 +65,8 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                       ABB Document Summarizer​
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted text-center">
-                      PAEN doc summarizer to converse in real time
+                      PAEN doc summarizer to converse in real time with your
+                      document
                     </Card.Subtitle>
 
                     <Button variant="danger">Enter</Button>

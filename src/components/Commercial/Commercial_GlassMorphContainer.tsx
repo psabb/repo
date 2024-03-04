@@ -1,27 +1,20 @@
 // GlassMorphContainer.tsx
 import React, { useState, useEffect, useRef } from "react";
-import Modal from "react-modal";
 import "./Commercial_GlassMorphContainer.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import TextBoxWithButton from "./Commercial_TextboxWithButton";
-import Avatar from "@mui/material/Avatar";
-import Chip from "@mui/material/Chip";
-import yourImage from "../../assets/per.png";
-import theirImage from "../../assets/rob.jpg";
-import FileUploadService from "../../services/FileUploadService";
 import UploadService from "../../services/FileUploadService";
-import IFile from "../../types/File";
 import "./FileUpload.css";
 import { Dispatch, SetStateAction } from "react";
 import BouncingDotsLoader from "./BouncingLoader";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import CheckIcon from "@mui/icons-material/Check";
-import Dropdown from "react-dropdown";
+import GlassMorphInsideContainer from "./GlassMorphInsideContainer";
 import "react-dropdown/style.css";
 import optionsMap, { Question } from "./optionsData";
 import { Example } from "./MultiToggle";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ModalComponent from "./ModalComponent";
+import ChatComponent from "./ChatComponent";
 
 interface GlassMorphContainerProps {
   children: React.ReactNode;
@@ -44,7 +37,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
-  const [progress, setProgress] = useState<number>(0);
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -79,28 +71,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
   const handleCategorySelect = (categoryValue: number) => {
     setSelectedCategory(categoryValue);
-  };
-
-  const renderSystemResponse = (response: string | React.ReactNode) => {
-    if (response === undefined) {
-      return (
-        <span style={{ color: "red" }}>
-          An error occurred. Either the engine you requested does not exist or
-          there was another issue processing your request.
-        </span>
-      ); // Display this message for undefined responses
-    }
-    if (typeof response === "string") {
-      // Use Markdown-like syntax for bold characters and lists
-      return response
-        .replace(
-          /\*\*(.*?)\*\*/g,
-          (_, content) => `<strong>${content}</strong>`
-        )
-        .replace(/^\s*-\s*(.*)$/gm, (_, content) => `<li>${content}</li>`)
-        .replace(/^\s*<\/?p>\s*$/gm, ""); // Remove empty paragraphs
-    }
-    return response;
   };
 
   const copyToClipboard = (content: React.ReactNode) => {
@@ -177,18 +147,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
         return;
       }
 
-      if (userMessage.toLowerCase() === "upload" && currentFile) {
-        await FileUploadService.upload(currentFiles, (event: any) => {
-          console.log("Loaded:", event.loaded);
-          console.log("Total:", event.total);
-          const calculatedProgress = Math.round(
-            (100 * event.loaded) / event.total
-          );
-          console.log("Calculated Progress:", calculatedProgress);
-          setProgress(calculatedProgress);
-        });
-      }
-
       if (selectedOption) {
         const dropdownUserMessage: Message = {
           sender: "user",
@@ -225,6 +183,28 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     } catch (error) {
       console.error("Error sending message:", error);
     }
+  };
+
+  const renderSystemResponse = (response: string | React.ReactNode) => {
+    if (response === undefined) {
+      return (
+        <span style={{ color: "red" }}>
+          An error occurred. Either the engine you requested does not exist or
+          there was another issue processing your request.
+        </span>
+      ); // Display this message for undefined responses
+    }
+    if (typeof response === "string") {
+      // Use Markdown-like syntax for bold characters and lists
+      return response
+        .replace(
+          /\*\*(.*?)\*\*/g,
+          (_, content) => `<strong>${content}</strong>`
+        )
+        .replace(/^\s*-\s*(.*)$/gm, (_, content) => `<li>${content}</li>`)
+        .replace(/^\s*<\/?p>\s*$/gm, ""); // Remove empty paragraphs
+    }
+    return response;
   };
 
   const triggerProcessFile = async (blobName: string) => {
@@ -322,7 +302,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
     if (selectedFiles.length > 0) {
       setCurrentFiles(selectedFiles);
-      setProgress(0);
       setMessage("");
 
       const fileNames = selectedFiles.map((file) => file.name);
@@ -340,7 +319,6 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     }
 
     setLoading(true);
-    setProgress(0);
 
     if (!currentFiles || currentFiles.length === 0) {
       setLoading(false);
@@ -360,9 +338,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
       const response = await UploadService.upload(
         currentFiles,
-        (event: any) => {
-          setProgress(Math.round((100 * event.loaded) / event.total));
-        }
+        (event: any) => {}
       );
       const blobName = response.data.blob_name;
       setBlobName(blobName);
@@ -415,312 +391,36 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
 
           <Example onCategorySelect={handleCategorySelect} />
 
-          <div className="glass-morph-insidecontainer">
-            <p>Please upload your document (.pdf, .docx formats only) :</p>
-            <div>
-              <div className="row">
-                <div className="col-8">
-                  <label className="btn btn-default p-0">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={selectFile}
-                      accept=".pdf,.docx"
-                    />
-                    {currentFiles.length > 0 && (
-                      <span style={{ marginLeft: "-190px" }}>{`${
-                        currentFiles.length
-                      } ${
-                        currentFiles.length === 1 ? "file" : "files"
-                      } selected, click on upload`}</span>
-                    )}
-                  </label>
-                </div>
-
-                <div>
-                  <button
-                    className="btn btn-danger btn-sm upload"
-                    disabled={
-                      !currentFiles || currentFiles.length === 0 || loading
-                    } // Disable button when loading
-                    onClick={upload}
-                    style={{ marginLeft: "90px" }}
-                  >
-                    Upload
-                  </button>
-                </div>
-              </div>
-
-              {uploadingFileNames.length > 0 && (
-                <div>
-                  <p style={{ marginTop: "10px" }}>
-                    Selected Files for Upload:
-                  </p>
-                  <ul>
-                    {uploadingFileNames.map((fileName, index) => (
-                      <li key={index}>
-                        {fileName.length > 25
-                          ? `${fileName.substring(
-                              0,
-                              25
-                            )}...${fileName.substring(
-                              fileName.lastIndexOf(".") + 1
-                            )}`
-                          : fileName}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {loading && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <div
-                    className="spinner"
-                    style={{ marginRight: "10px" }}
-                  ></div>
-                  <span className="process">Uploading File</span>
-                  <div className="dots">
-                    {Array.from({ length: 3 }, (_, index) => (
-                      <span
-                        className="running"
-                        key={index}
-                        style={{ animationDelay: `${index * 0.5}s` }}
-                      >
-                        {"."}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {processing && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <div
-                    className="spinner"
-                    style={{ marginRight: "10px" }}
-                  ></div>
-                  <span className="process">Processing File</span>
-                  <div className="dots">
-                    {Array.from({ length: 3 }, (_, index) => (
-                      <span
-                        className="running"
-                        key={index}
-                        style={{ animationDelay: `${index * 0.5}s` }}
-                      >
-                        {"."}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {message && (
-                <div
-                  className={`alert ${
-                    message === "Files uploaded successfully"
-                      ? "alert-success"
-                      : "alert-secondary"
-                  } mt-3`}
-                  role="alert"
-                >
-                  {message}
-                  <button
-                    type="button"
-                    className="close"
-                    aria-label="Close"
-                    onClick={clearMessage}
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {uploadButtonClicked && (
-              <div>
-                <br />
-                <Dropdown
-                  value={selectedOption}
-                  options={transformedOptions}
-                  onChange={(option) => inputHandler(option.label)}
-                  placeholder="Suggested Questions as per the category selected"
-                />
-              </div>
-            )}
-          </div>
+          <GlassMorphInsideContainer
+            currentFiles={currentFiles}
+            loading={loading}
+            uploadingFileNames={uploadingFileNames}
+            uploadButtonClicked={uploadButtonClicked}
+            selectedOption={selectedOption}
+            transformedOptions={transformedOptions}
+            onFileSelect={selectFile}
+            onUpload={upload}
+            onCategorySelect={handleCategorySelect}
+            onInputHandler={inputHandler}
+            clearMessage={clearMessage}
+            message={message} // Pass the message prop
+            processing={processing} // Pass the processing prop
+          />
 
           <br />
 
           {messages.length > 0 ? (
-            <div className="chat-container">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`chat-bubble ${
-                    msg.sender === "user" ? "sender" : "received"
-                  }`}
-                >
-                  {/* Avatar for Receiver */}
-                  {msg.sender === "system" && (
-                    <div className="avatar-container">
-                      <Avatar>
-                        <img
-                          src={theirImage}
-                          alt={`${msg.sender.charAt(0).toUpperCase()} Avatar`}
-                          style={{
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%",
-                          }}
-                        />
-                      </Avatar>
-                    </div>
-                  )}
-
-                  {/* Chip */}
-                  <Chip
-                    label={
-                      typeof msg.content === "string" ? (
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: renderSystemResponse(msg.content) || "",
-                          }}
-                          style={{ fontSize: "14px" }}
-                        />
-                      ) : (
-                        msg.content
-                      )
-                    }
-                    variant="outlined"
-                    className={`${
-                      msg.sender === "system" && msg.loading
-                        ? "loading-chip"
-                        : ""
-                    }`}
-                  />
-
-                  {/* Copy icon for system messages (moved below the chip) */}
-                  {msg.sender === "system" &&
-                    typeof msg.content === "string" &&
-                    msg.content !== "Information Not Available" &&
-                    msg.content !== "Information Not Available." &&
-                    msg.content.trim() !== "" &&
-                    !msg.loading && (
-                      <div style={{ marginTop: "5px" }}>
-                        {showCheckIcon ? (
-                          <CheckIcon
-                            className="CheckIcon"
-                            style={{
-                              width: "16px",
-                              height: "16px",
-                              marginLeft: "4px",
-                            }}
-                          />
-                        ) : (
-                          <FileCopyIcon
-                            className="FileCopyIcon"
-                            style={{
-                              width: "14px",
-                              height: "14px",
-                              marginLeft: "4px",
-                            }}
-                            onClick={() => {
-                              copyToClipboard(msg.content);
-                              setShowCheckIcon(true);
-                              setTimeout(() => {
-                                setShowCheckIcon(false);
-                              }, 2000);
-                            }}
-                          />
-                        )}
-                      </div>
-                    )}
-
-                  {/* Avatar for User */}
-                  {msg.sender === "user" && (
-                    <div
-                      className="avatar-container"
-                      style={{ order: 2, marginLeft: "5px" }}
-                    >
-                      <Avatar>
-                        <img
-                          src={yourImage}
-                          alt={`${msg.sender.charAt(0).toUpperCase()} Avatar`}
-                          style={{
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%",
-                          }}
-                        />
-                      </Avatar>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              <div ref={messagesEndRef} />
-            </div>
+            <ChatComponent
+              messages={messages}
+              showCheckIcon={showCheckIcon}
+              copyToClipboard={copyToClipboard}
+            />
           ) : null}
         </div>
       </div>
 
       <TextBoxWithButton onSend={handleMessageSend} />
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        // className="custom-modal"
-        contentLabel="Note Modal"
-        className="custom-modal"
-      >
-        {/* Content inside the modal */}
-        <div style={{ textAlign: "justify", marginBottom: "20px" }}>
-          <h2>Disclaimer:</h2>
-          <br />
-          <p>
-            <ul>
-              Content accuracy in this document summarizer is algorithmically
-              generated and may not capture the full depth of the original text.
-            </ul>
-            <ul>
-              {" "}
-              Users are advised to independently verify crucial information, as
-              the summarizer's output may not always be exhaustive or
-              error-free.
-            </ul>
-            <ul>
-              {" "}
-              While the technology strives for precision, the summarizer's
-              accuracy is contingent on the complexity and context of the input
-              text.{" "}
-            </ul>
-          </p>
-          <button
-            className="btn btn-danger"
-            style={{
-              marginTop: "20px",
-              backgroundColor: "#d9534f",
-              border: "1px solid #d9534f",
-              marginLeft: "21%",
-            }}
-            onClick={closeModal}
-          >
-            I Understand
-          </button>
-        </div>
-      </Modal>
+      <ModalComponent isOpen={isModalOpen} onClose={closeModal} />
     </>
   );
 };
