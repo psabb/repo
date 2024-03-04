@@ -9,3 +9,14 @@
 .MuiOutlinedInput-notchedOutline {
   border-color: rgb(151, 157, 161) !important;
 }
+
+.hover-link {
+  margin-right: 10px;
+  text-decoration: none;
+  color: gray;
+  transition: color 0.3s;
+}
+
+.hover-link:hover {
+  color: red;
+}

@@ -1,5 +1,6 @@
 // GlassMorphContainer.tsx
 import React, { useState, useEffect, useRef } from "react";
+import Modal from "react-modal";
 import "./Commercial_GlassMorphContainer.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import TextBoxWithButton from "./Commercial_TextboxWithButton";
@@ -59,6 +60,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
   const [uploadingFileNames, setUploadingFileNames] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(true);
 
   const currentOptions: Question[] =
     optionsMap[`option${selectedCategory}` as keyof typeof optionsMap] || [];
@@ -388,6 +390,19 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     setMessage("");
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // useEffect to close the modal after a certain time
+  useEffect(() => {
+    const modalTimeout = setTimeout(() => {
+      closeModal();
+    }, 500000); // Adjust the time as needed
+
+    return () => clearTimeout(modalTimeout);
+  }, []);
+
   return (
     <>
       <div className="glass-morph-wrapper">
@@ -663,6 +678,49 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
       </div>
 
       <TextBoxWithButton onSend={handleMessageSend} />
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        // className="custom-modal"
+        contentLabel="Note Modal"
+        className="custom-modal"
+      >
+        {/* Content inside the modal */}
+        <div style={{ textAlign: "justify", marginBottom: "20px" }}>
+          <h2>Disclaimer:</h2>
+          <br />
+          <p>
+            <ul>
+              Content accuracy in this document summarizer is algorithmically
+              generated and may not capture the full depth of the original text.
+            </ul>
+            <ul>
+              {" "}
+              Users are advised to independently verify crucial information, as
+              the summarizer's output may not always be exhaustive or
+              error-free.
+            </ul>
+            <ul>
+              {" "}
+              While the technology strives for precision, the summarizer's
+              accuracy is contingent on the complexity and context of the input
+              text.{" "}
+            </ul>
+          </p>
+          <button
+            className="btn btn-danger"
+            style={{
+              marginTop: "20px",
+              backgroundColor: "#d9534f",
+              border: "1px solid #d9534f",
+              marginLeft: "21%",
+            }}
+            onClick={closeModal}
+          >
+            I Understand
+          </button>
+        </div>
+      </Modal>
     </>
   );
 };

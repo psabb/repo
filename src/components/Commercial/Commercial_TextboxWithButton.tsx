@@ -55,7 +55,7 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
         };
 
         const response = await fetch(
-          "https://rfqbackenddeployment.azurewebsites.net/process_input",
+          "https://github-backend.azurewebsites.net/process_input",
           {
             method: "POST",
             headers: {
@@ -122,62 +122,94 @@ const TextBoxWithButton: React.FC<TextBoxWithButtonProps> = ({ onSend }) => {
     }
   };
   return (
-    <Box
-      component="div"
-      position="fixed"
-      bottom="0"
-      left="50%"
-      marginLeft="-50%"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      width="100%"
-      p="16px"
-      bgcolor="white"
-      borderTop="2px solid #f2f2f2"
-    >
-      <TextField
-        variant="outlined"
-        id="outlined-error"
-        size="small"
-        value={message}
-        placeholder="Type or Ask your Query"
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        classes={{ root: isFocused ? "focusedTextField" : "" }}
-        style={{ width: "60%" }}
-        InputProps={{
-          endAdornment: (
-            <>
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleMicClick}
-                  edge="end"
-                  color={listening ? "warning" : "default"}
-                  className="iconButton"
-                >
-                  <MicIcon />
-                </IconButton>
-              </InputAdornment>
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handleSend(message, storedVectorStoreName);
-                  }}
-                  edge="end"
-                  className="iconButton"
-                >
-                  <SendIcon />
-                </IconButton>
-              </InputAdornment>
-            </>
-          ),
-        }}
-      />
-    </Box>
+    <>
+      <Box
+        component="div"
+        position="fixed"
+        bottom="0"
+        left="50%"
+        marginLeft="-50%"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        width="100%"
+        p="16px"
+        bgcolor="white"
+        borderBottom="2px solid #f2f2f2"
+        marginBottom="30px"
+      >
+        <TextField
+          variant="outlined"
+          id="outlined-error"
+          size="small"
+          value={message}
+          placeholder="Type or Ask your Query"
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          classes={{ root: isFocused ? "focusedTextField" : "" }}
+          style={{ width: "60%" }}
+          InputProps={{
+            endAdornment: (
+              <>
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleMicClick}
+                    edge="end"
+                    color={listening ? "warning" : "default"}
+                    className="iconButton"
+                  >
+                    <MicIcon />
+                  </IconButton>
+                </InputAdornment>
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleSend(message, storedVectorStoreName);
+                    }}
+                    edge="end"
+                    className="iconButton"
+                  >
+                    <SendIcon />
+                  </IconButton>
+                </InputAdornment>
+              </>
+            ),
+          }}
+        />
+      </Box>
+      <Box
+        component="div"
+        position="fixed"
+        bottom="0"
+        left="50%"
+        marginLeft="-50%"
+        display="flex"
+        flexDirection="row"
+        alignItems="flex-end"
+        justifyContent="flex-end"
+        width="100%"
+        p="5px"
+        bgcolor="white"
+        borderTop="2px solid #f2f2f2"
+        color="red"
+      >
+        <a
+          href="https://forms.office.com/e/n6hG5kQ34C"
+          target="_blank"
+          className="hover-link"
+          rel="noreferrer"
+        >
+          Feedback
+        </a>
+        <a href="/" className="hover-link">
+          Contact Us
+        </a>
+        &#169;ABB PAEN 2024
+      </Box>
+    </>
   );
 };
 

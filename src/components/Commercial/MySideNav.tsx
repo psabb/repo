@@ -119,6 +119,10 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
     }
   };
 
+  const handleFeedbackClick = () => {
+    window.open("https://forms.office.com/e/n6hG5kQ34C", "_blank");
+  };
+
   return (
     <>
       <SideNav onSelect={(selected: string) => {}}>
@@ -175,6 +179,15 @@ function MySideNav({ storedVectorStoreName, fileUploaded }: MySideNavProps) {
               </NavItem>
             </NavItem>
           )}
+          <NavItem eventKey="feedback" onClick={handleFeedbackClick}>
+            <NavIcon>
+              <i
+                className="fa-solid fa-comment"
+                style={{ fontSize: "1.5em" }}
+              ></i>
+            </NavIcon>
+            <NavText>Feedback</NavText>
+          </NavItem>
         </SideNav.Nav>
       </SideNav>
       <ToastContainer

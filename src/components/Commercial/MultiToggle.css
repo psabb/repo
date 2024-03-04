@@ -19,7 +19,7 @@
 .toggleContainer .toggleOption {
   display: inline-block;
   position: relative;
-  z-index: 1;
+
   text-align: center;
   height: 40px;
   line-height: 40px;
@@ -32,6 +32,7 @@
 .toggleContainer .toggleOption.selected {
   color: #ffffff;
   cursor: initial;
+  z-index: 1;
 }
 
 .toggleContainer .toggle {
@@ -42,6 +43,7 @@
   transition: all 0.4s ease-in-out;
   background: #ff0000;
   border-radius: 10px;
+  z-index: 0;
 }
 
 .description {

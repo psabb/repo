@@ -6,10 +6,10 @@
   overflow-y: auto;
   width: 57%;
   height: 250%;
-  padding: 20px;
+  padding: 10px;
   margin: auto;
   margin-left: 21%;
-  margin-top: 2%;
+  margin-top: 1%;
 
   .chat-container {
     display: flex;
@@ -149,4 +149,23 @@
 
 .css-115meuo > svg:first-child {
   display: none; /* or use visibility: hidden; if you want to keep the space */
+}
+
+.custom-modal {
+  position: absolute;
+  top: 48%;
+  left: 49.5%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(255, 255, 255);
+  padding: 20px;
+  outline: none;
+  z-index: 1;
+  padding-right: 50px;
+  margin-bottom: 50px;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 10px;
+}
+
+.custom-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
 }
