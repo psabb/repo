@@ -112,7 +112,7 @@ const GlassMorphContainer: React.FC<GlassMorphContainerProps> = ({
     // Append textarea to the body, select, copy, and remove
     document.body.appendChild(textField);
     textField.select();
-    document.execCommand("copy");
+    document.execCommand("cop");
     document.body.removeChild(textField);
   };
 
